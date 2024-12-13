@@ -1,0 +1,25 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: ${DBMS_CONNECTION:jdbc:mysql://localhost:3306/rental_house_manager}
+    driverClassName: "com.mysql.cj.jdbc.Driver"
+    password: ${DBMS_PASSWORD:root}
+    username: ${DBMS_USERNAME:root}
+  jpa:
+    hibernate:
+      ddl-auto: update
+#      format_sql: true
+    show-sql: true
+#logging:
+#  level:
+#    org.hibernate.SQL: DEBUG
+#    org.hibernate.type.descriptor.sql: TRACE
+
+jwt:
+  signerKey: "qIN32BSKRqe1Gmt3cKUSTj4Yg5fx3gz3arHam6/XcNM4agDHbdlB74OXjEPzvOHw"
+  valid-duration: 864000 # in second
+
+
+
