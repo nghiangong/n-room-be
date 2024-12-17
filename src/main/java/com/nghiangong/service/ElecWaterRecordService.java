@@ -1,14 +1,14 @@
 package com.nghiangong.service;
 
 import com.nghiangong.dto.request.EnterRecords;
-import com.nghiangong.dto.response.ElecNumberOfRoomResponse;
 import com.nghiangong.dto.response.elecwater.ElecwaterRecordRes;
+import com.nghiangong.dto.response.elecwater.RecordPairRes;
 import com.nghiangong.entity.elecwater.ElecRecordOfRoom;
 import com.nghiangong.entity.elecwater.WaterRecordOfRoom;
 import com.nghiangong.entity.room.Room;
 import com.nghiangong.exception.AppException;
 import com.nghiangong.exception.ErrorCode;
-import com.nghiangong.model.RecordPair;
+import com.nghiangong.mapper.RecordMapper;
 import com.nghiangong.repository.ElecRecordOfRoomRepository;
 import com.nghiangong.repository.HouseRepository;
 import com.nghiangong.repository.RoomRepository;
@@ -17,7 +17,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.util.Pair;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,7 +25,6 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +36,7 @@ public class ElecWaterRecordService {
     RoomRepository roomRepository;
     ElecRecordOfRoomRepository elecRecordOfRoomRepository;
     WaterRecordOfRoomRepository waterRecordOfRoomRepository;
+    RecordMapper recordMapper;
 
     public List<ElecwaterRecordRes> get(int houseId, LocalDate date) {
         houseRepository.findById(houseId).orElseThrow(
@@ -87,24 +86,24 @@ public class ElecWaterRecordService {
         }
     }
 
-    public RecordPair getElecRecordPair(Integer roomId, LocalDate date) {
+    public RecordPairRes getElecRecordPair(Integer roomId, LocalDate date) {
         LocalDate endOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
         LocalDate endOfLastMonth = date.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
         ElecRecordOfRoom cur = elecRecordOfRoomRepository.findByRoomIdAndDate(roomId, endOfMonth)
                 .orElse(null);
         ElecRecordOfRoom prev = elecRecordOfRoomRepository.findByRoomIdAndDate(roomId, endOfLastMonth)
                 .orElse(null);
-        return new RecordPair(cur, prev);
+        return recordMapper.toRecordPairRes(cur, prev);
     }
 
-    public RecordPair getWaterRecordPair(Integer roomId, LocalDate date) {
+    public RecordPairRes getWaterRecordPair(Integer roomId, LocalDate date) {
         LocalDate endOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
         LocalDate endOfLastMonth = date.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
         WaterRecordOfRoom cur = waterRecordOfRoomRepository.findByRoomIdAndDate(roomId, endOfMonth)
                 .orElse(null);
         WaterRecordOfRoom prev = waterRecordOfRoomRepository.findByRoomIdAndDate(roomId, endOfLastMonth)
                 .orElse(null);
-        return new RecordPair(cur, prev);
+        return recordMapper.toRecordPairRes(cur, prev);
     }
 
     public int getElecRecord(Integer roomId, LocalDate date) {
@@ -113,7 +112,6 @@ public class ElecWaterRecordService {
                 .orElseThrow(() -> new AppException(ErrorCode.ELEC_NUMBER_NOT_ENTERED));
         return record.getValue();
     }
-
 
     public int getWaterRecord(Integer roomId, LocalDate date) {
         LocalDate endOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());

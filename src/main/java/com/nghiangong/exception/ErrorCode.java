@@ -28,9 +28,11 @@ public enum ErrorCode {
     WATER_NUMBER_NOT_VALID(43, "Số nước nhập không hợp lệ", HttpStatus.BAD_REQUEST),
 
     CONTRACT_INVALID(60, "Hợp đồng không hợp lệ", HttpStatus.BAD_REQUEST),
+    CONTRACT_NOT_EXISTED(61, "Hợp đồng không tồn tại", HttpStatus.BAD_REQUEST),
 
     INVOICE_NOT_EXISTED(70, "Hóa đơn không tồn tại", HttpStatus.BAD_REQUEST),
     INVOICE_OF_MONTH_EXISTED(71, "Hóa đơn tháng đã tồn tại", HttpStatus.BAD_REQUEST),
+    INVOICE_EXISTED(72, "Hóa đơn đã tồn tại", HttpStatus.BAD_REQUEST),
 
     TENANT_RENTING_NO_ROOM(80, "Không có phòng nào được đang thuê", HttpStatus.BAD_REQUEST),
     ;

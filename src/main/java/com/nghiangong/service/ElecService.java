@@ -12,7 +12,7 @@
 //import com.nghiangong.dto.request.EnterRecords;
 //import com.nghiangong.entity.elecwater.ElecRecordOfRoom;
 //import com.nghiangong.entity.room.Room;
-//import com.nghiangong.mapper.ElecMapper;
+//import com.nghiangong.mapper.RecordMapper;
 //import com.nghiangong.repository.ElecRecordOfRoomRepository;
 //import com.nghiangong.repository.RoomRepository;
 //
@@ -28,7 +28,7 @@
 //public class ElecService {
 //    RoomRepository roomRepository;
 //    ElecRecordOfRoomRepository elecNumberOfRoomRepository;
-//    ElecMapper elecMapper;
+//    RecordMapper elecMapper;
 //
 //    public List<ElecNumberOfRoomResponse.Pair> getPairList(int houseId, LocalDate date) {
 //        date = date.with(TemporalAdjusters.lastDayOfMonth());

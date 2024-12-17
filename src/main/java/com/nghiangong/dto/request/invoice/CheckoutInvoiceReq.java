@@ -1,4 +1,4 @@
-package com.nghiangong.dto.request.tenant;
+package com.nghiangong.dto.request.invoice;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,9 +10,8 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TenantReq {
-    String fullName;
-    String personalIdNumber;
-    String phoneNumber;
-    String email;
+public class CheckoutInvoiceReq {
+    int contractId;
+    int endElecNumber;
+    int endWaterNumber;
 }

@@ -44,7 +44,7 @@ public class Room {
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
     List<Furniture> furnitureList;
 
-    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     List<ElecRecordOfRoom> elecRecords;
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)

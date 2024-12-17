@@ -2,7 +2,7 @@ package com.nghiangong.dto.response.contract;
 
 import com.nghiangong.dto.response.house.HouseRes;
 import com.nghiangong.dto.response.room.RoomRes;
-import com.nghiangong.dto.response.tenant.TenantRes;
+import com.nghiangong.dto.response.user.UserRes;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -28,6 +28,6 @@ public class ContractDetailRes {
 
 
     RoomRes room;
-    TenantRes repTenant;
+    UserRes repTenant;
     HouseRes house;
 }

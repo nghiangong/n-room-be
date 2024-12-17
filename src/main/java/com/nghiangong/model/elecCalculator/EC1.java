@@ -8,24 +8,29 @@ import com.nghiangong.entity.room.Room;
 import com.nghiangong.service.ElecWaterRecordService;
 
 public class EC1 {
-    public static void calculate(ElecWaterRecordService service, List<Room> rooms, List<Invoice> invoices) {
-        int lengthOfMonth = invoices.get(1).getCreateDate().lengthOfMonth();
-        var elecCostByPeopleCount = rooms.get(1).getHouse().getElecCostByPeopleCount();
-        for (int i = 0; i < rooms.size(); i++) {
-            int numberOfPeople = rooms.get(i).getCurrentContract().getNumberOfPeople();
-            var invoice = invoices.get(i);
-            int daysStayed = (int)
-                    (invoice.getEndDate().toEpochDay() - invoice.getStartDate().toEpochDay() + 1);
-            int unitPrice = elecCostByPeopleCount.get(numberOfPeople - 1);
-            var newInvoiceItem = InvoiceItem.builder()
-                    .name("Tiền điện")
-                    .note("Số ngày ở: " + daysStayed + "/" + lengthOfMonth)
-                    .unitPrice(unitPrice)
-                    .unit("phòng/tháng")
-                    .amount(unitPrice * daysStayed / lengthOfMonth)
-                    .invoice(invoice)
-                    .build();
-            invoice.addInvoiceItem(newInvoiceItem);
-        }
+    public static void calculate(ElecWaterRecordService service, List<Invoice> invoices) {
+        invoices.forEach(invoice -> calculate(service, invoice));
+    }
+
+    public static void calculate(ElecWaterRecordService service, Invoice invoice) {
+        var contract = invoice.getContract();
+        var room = contract.getRoom();
+        var house = room.getHouse();
+
+        int lengthOfMonth = contract.getStartDate().lengthOfMonth();
+        int numberOfPeople = contract.getNumberOfPeople();
+        int daysStayed = (int)
+                (invoice.getEndDate().toEpochDay() - invoice.getStartDate().toEpochDay() + 1);
+        int unitPrice = house.getElecCostByPeopleCount().get(numberOfPeople - 1);
+
+        var newInvoiceItem = InvoiceItem.builder()
+                .name("Tiền điện")
+                .note("Số ngày ở: " + daysStayed + "/" + lengthOfMonth)
+                .unitPrice(unitPrice)
+                .unit("phòng/tháng")
+                .amount(unitPrice * daysStayed / lengthOfMonth)
+                .invoice(invoice)
+                .build();
+        invoice.addInvoiceItem(newInvoiceItem);
     }
 }

@@ -1,7 +1,7 @@
 package com.nghiangong.controller;
 
 import com.nghiangong.dto.response.ApiResponse;
-import com.nghiangong.dto.response.tenant.TenantDetailRes;
+import com.nghiangong.dto.response.user.TenantDetailRes;
 import com.nghiangong.service.TenantService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

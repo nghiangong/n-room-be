@@ -1,28 +1,23 @@
 package com.nghiangong.service;
 
-import com.nghiangong.constant.Role;
+import com.nghiangong.dto.response.contract.ContractDetailRes;
 import com.nghiangong.dto.response.contract.ContractRes;
+import com.nghiangong.dto.response.elecwater.RecordRes;
 import com.nghiangong.dto.response.invoice.InvoiceDetailRes;
 import com.nghiangong.dto.response.invoice.InvoiceRes;
 import com.nghiangong.dto.response.room.RoomDetailRes2;
-import com.nghiangong.dto.response.tenant.TenantRes;
+import com.nghiangong.dto.response.user.UserRes;
 import com.nghiangong.entity.room.Room;
-import com.nghiangong.entity.user.Tenant;
 import com.nghiangong.exception.AppException;
 import com.nghiangong.exception.ErrorCode;
-import com.nghiangong.mapper.ContractMapper;
-import com.nghiangong.mapper.InvoiceMapper;
-import com.nghiangong.mapper.RoomMapper;
-import com.nghiangong.mapper.TenantMapper;
-import com.nghiangong.repository.ContractRepository;
-import com.nghiangong.repository.InvoiceRepository;
-import com.nghiangong.repository.RoomRepository;
-import com.nghiangong.repository.TenantRepository;
+import com.nghiangong.mapper.*;
+import com.nghiangong.repository.*;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -37,19 +32,29 @@ public class TenantApiService {
     ContractRepository contractRepository;
     InvoiceRepository invoiceRepository;
     TenantRepository tenantRepository;
+    WaterRecordOfRoomRepository waterRecordOfRoomRepository;
+    ElecRecordOfRoomRepository elecRecordOfRoomRepository;
 
     RoomMapper roomMapper;
     ContractMapper contractMapper;
     InvoiceMapper invoiceMapper;
     TenantMapper tenantMapper;
+    RecordMapper recordMapper;
 
-    public RoomDetailRes2 getRoomByTenant() {
+    public RoomDetailRes2 getRoom() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         int tenantId = Integer.parseInt(authentication.getName());
 
         Room room = roomRepository.findRentingByTenantId(tenantId)
                 .orElseThrow(() -> new AppException(ErrorCode.TENANT_RENTING_NO_ROOM));
-        return roomMapper.toRoomDetailDetailRes2(room);
+
+        Pageable pageable = PageRequest.of(0, 12);
+        var response = roomMapper.toRoomDetailDetailRes2(room);
+        var elecRecords = elecRecordOfRoomRepository.findByTenantId(tenantId, pageable);
+        var waterRecords = waterRecordOfRoomRepository.findByTenantId(tenantId, pageable);
+        response.setElecRecords(elecRecords.stream().map(recordMapper::toRecordRes).toList());
+        response.setWaterRecords(waterRecords.stream().map(recordMapper::toRecordRes).toList());
+        return response;
     }
 
     public List<ContractRes> getContracts() {
@@ -58,6 +63,12 @@ public class TenantApiService {
         return contractRepository.findByTenantId(Integer.parseInt(tenantId)).stream()
                 .map(contractMapper::toContractRes)
                 .toList();
+    }
+
+    public ContractDetailRes getContractDetailById(int contractId) {
+        var contract = contractRepository.findById(contractId)
+                .orElseThrow(() -> new AppException(ErrorCode.CONTRACT_NOT_EXISTED));
+        return contractMapper.toContractDetailRes(contract);
     }
 
     public List<InvoiceRes> getInvoices() {
@@ -74,13 +85,30 @@ public class TenantApiService {
         return invoiceMapper.toInvoiceDetailRes(invoice);
     }
 
-    public List<TenantRes> getMembers() {
+    public List<UserRes> getMembers() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         Integer tenantId = Integer.valueOf(authentication.getName());
 
         var tenants = tenantRepository.findMembersByTenantId(tenantId);
-        return tenants.stream().map(tenantMapper::toTenantRes).toList();
+        return tenants.stream().map(tenantMapper::toUserRes).toList();
     }
 
+    public List<RecordRes> getElecRecords() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer tenantId = Integer.valueOf(authentication.getName());
+
+        Pageable pageable = PageRequest.of(0, 12);
+        var records = elecRecordOfRoomRepository.findByTenantId(tenantId, pageable);
+        return records.stream().map(recordMapper::toRecordRes).toList();
+    }
+
+    public List<RecordRes> getWaterRecords() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        Integer tenantId = Integer.valueOf(authentication.getName());
+
+        Pageable pageable = PageRequest.of(0, 12);
+        var records = waterRecordOfRoomRepository.findByTenantId(tenantId, pageable);
+        return records.stream().map(recordMapper::toRecordRes).toList();
+    }
 
 }

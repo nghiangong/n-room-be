@@ -5,12 +5,16 @@ import com.nghiangong.dto.response.room.RoomDetailRes2;
 import com.nghiangong.dto.response.room.RoomNameRes;
 import com.nghiangong.dto.response.room.RoomDetailRes;
 import com.nghiangong.dto.response.room.RoomRes;
+import com.nghiangong.entity.elecwater.ElecRecordOfRoom;
+import com.nghiangong.entity.elecwater.WaterRecordOfRoom;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import com.nghiangong.entity.room.Room;
+
+import java.util.List;
 
 @Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface RoomMapper {

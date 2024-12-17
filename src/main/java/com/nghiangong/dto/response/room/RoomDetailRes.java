@@ -2,7 +2,7 @@ package com.nghiangong.dto.response.room;
 
 import com.nghiangong.dto.response.contract.ContractRes;
 import com.nghiangong.dto.response.house.HouseRes;
-import com.nghiangong.dto.response.tenant.TenantRes;
+import com.nghiangong.dto.response.user.UserRes;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,5 +21,5 @@ public class RoomDetailRes {
 
     HouseRes house;
     ContractRes currentContract;
-    TenantRes repTenant;
+    UserRes repTenant;
 }

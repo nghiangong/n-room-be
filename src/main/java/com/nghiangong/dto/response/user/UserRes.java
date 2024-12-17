@@ -1,5 +1,6 @@
-package com.nghiangong.dto.request.tenant;
+package com.nghiangong.dto.response.user;
 
+import com.nghiangong.constant.Role;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,9 +11,11 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class TenantReq {
-    String fullName;
+public class UserRes {
+    int id;
     String personalIdNumber;
+    String fullName;
     String phoneNumber;
     String email;
+    Role role;
 }

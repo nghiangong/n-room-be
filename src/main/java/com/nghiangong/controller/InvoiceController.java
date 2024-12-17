@@ -25,18 +25,17 @@ public class InvoiceController {
         invoiceService.createInvoice(houseId, date);
         return ApiResponse.builder().build();
     }
-//
-//    @GetMapping
-//    ApiResponse<List<InvoiceRes>> getList(@RequestParam int houseId) {
-//        return ApiResponse.<List<InvoiceRes>>builder()
-//                .result(invoiceService.getList(houseId))
-//                .build();
-//    }
 
     @GetMapping
     ApiResponse<List<InvoiceDetailRes>> getList() {
         return ApiResponse.<List<InvoiceDetailRes>>builder()
                 .result(invoiceService.getList())
                 .build();
+    }
+
+    @PutMapping("/{id}/paid")
+    ApiResponse setPaid(@PathVariable("id") Integer id) {
+        invoiceService.setPaid(id);
+        return ApiResponse.builder().build();
     }
 }

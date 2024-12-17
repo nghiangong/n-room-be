@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.nghiangong.exception.AppException;
 import com.nghiangong.exception.ErrorCode;
+import com.nghiangong.model.DateUtils;
 import jakarta.persistence.*;
 
 import com.nghiangong.constant.ContractStatus;
@@ -26,7 +27,7 @@ public class Contract {
 
     LocalDate startDate;
     LocalDate endDate;
-    LocalDate terminationDate;
+    LocalDate noteDate;
 
     Integer rentPrice;
     Integer deposit;
@@ -35,6 +36,9 @@ public class Contract {
     Integer numberOfMotorbike;
     Integer startElecNumber;
     Integer startWaterNumber;
+
+    Integer endELecNumber;
+    Integer endWaterNumber;
 
     @Enumerated(EnumType.STRING)
     ContractStatus status = ContractStatus.ACTIVE;
@@ -49,19 +53,21 @@ public class Contract {
     @OneToMany(mappedBy = "contract")
     List<Invoice> invoices;
 
-
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+        if (status == ContractStatus.ACTIVE && DateUtils.remainingDateLessAMonth(this.endDate))
+            status = ContractStatus.PENDING_CHECKOUT;
+    }
 
     @PrePersist
     public void prePersist() {
-        if (terminationDate == null) {
-            terminationDate = endDate;
-        }
         if (status == null) status = ContractStatus.ACTIVE;
     }
 
 //    @PrePersist
     @PreUpdate
     public void preSave() {
-        if (!startDate.isAfter(endDate)) throw new AppException(ErrorCode.CONTRACT_INVALID, "Hợp đồng phải có ngày bắt đầu trước ngày kết thúc!");
+//        if (status == ContractStatus.ACTIVE && DateUtils.remainingDateLessAMonth(this.endDate))
+//            status = ContractStatus.PENDING_CHECKOUT;
     }
 }

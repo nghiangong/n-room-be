@@ -1,7 +1,7 @@
 package com.nghiangong.service;
 
-import com.nghiangong.dto.response.tenant.TenantDetailRes;
-import com.nghiangong.dto.response.tenant.TenantRes;
+import com.nghiangong.dto.response.user.TenantDetailRes;
+import com.nghiangong.dto.response.user.UserRes;
 import com.nghiangong.entity.House;
 import com.nghiangong.entity.room.Contract;
 import com.nghiangong.entity.room.Room;
@@ -38,7 +38,7 @@ public class TenantService {
     }
 
     //    @PreAuthorize("hasRole('PRE_TENANT')")
-    public TenantRes createMember(Tenant tenant) {
+    public UserRes createMember(Tenant tenant) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         Integer tenantId = Integer.valueOf(authentication.getName());
 
@@ -52,7 +52,7 @@ public class TenantService {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
 
-        return tenantMapper.toTenantRes(tenant);
+        return tenantMapper.toUserRes(tenant);
     }
 
     @PreAuthorize("hasRole('MANAGER')")
