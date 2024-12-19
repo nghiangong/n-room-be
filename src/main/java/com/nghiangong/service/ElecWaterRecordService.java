@@ -1,6 +1,5 @@
 package com.nghiangong.service;
 
-import com.nghiangong.dto.request.EnterRecords;
 import com.nghiangong.dto.response.elecwater.ElecwaterRecordRes;
 import com.nghiangong.dto.response.elecwater.RecordPairRes;
 import com.nghiangong.entity.elecwater.ElecRecordOfRoom;
@@ -66,44 +65,24 @@ public class ElecWaterRecordService {
         record.setValue(value);
     }
 
-    public void enterElecRecords(EnterRecords request) {
-        var date = request.getDate().with(TemporalAdjusters.lastDayOfMonth());
-        var list = request.getList();
-        for (var x : list) {
-            Room room = roomRepository.findById(x.getRoomId()).orElseThrow();
-            var newRecord = new ElecRecordOfRoom(0, date, x.getValue(), room);
-            elecRecordOfRoomRepository.save(newRecord);
-        }
-    }
-
-    public void enterWaterRecords(EnterRecords request) {
-        var date = request.getDate().with(TemporalAdjusters.lastDayOfMonth());
-        var list = request.getList();
-        for (var x : list) {
-            Room room = roomRepository.findById(x.getRoomId()).orElseThrow();
-            var newRecord = new WaterRecordOfRoom(0, date, x.getValue(), room);
-            waterRecordOfRoomRepository.save(newRecord);
-        }
-    }
-
     public RecordPairRes getElecRecordPair(Integer roomId, LocalDate date) {
         LocalDate endOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
         LocalDate endOfLastMonth = date.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
         ElecRecordOfRoom cur = elecRecordOfRoomRepository.findByRoomIdAndDate(roomId, endOfMonth)
-                .orElse(null);
+                .orElse(new ElecRecordOfRoom(endOfMonth));
         ElecRecordOfRoom prev = elecRecordOfRoomRepository.findByRoomIdAndDate(roomId, endOfLastMonth)
-                .orElse(null);
-        return recordMapper.toRecordPairRes(cur, prev);
+                .orElse(new ElecRecordOfRoom(endOfLastMonth));
+        return recordMapper.toRecordPairRes(prev, cur);
     }
 
     public RecordPairRes getWaterRecordPair(Integer roomId, LocalDate date) {
         LocalDate endOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
         LocalDate endOfLastMonth = date.minusMonths(1).with(TemporalAdjusters.lastDayOfMonth());
         WaterRecordOfRoom cur = waterRecordOfRoomRepository.findByRoomIdAndDate(roomId, endOfMonth)
-                .orElse(null);
+                .orElse(new WaterRecordOfRoom(endOfMonth));
         WaterRecordOfRoom prev = waterRecordOfRoomRepository.findByRoomIdAndDate(roomId, endOfLastMonth)
-                .orElse(null);
-        return recordMapper.toRecordPairRes(cur, prev);
+                .orElse(new WaterRecordOfRoom(endOfLastMonth));
+        return recordMapper.toRecordPairRes(prev, cur);
     }
 
     public int getElecRecord(Integer roomId, LocalDate date) {

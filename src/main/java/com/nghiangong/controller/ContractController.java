@@ -58,9 +58,9 @@ public class ContractController {
     //                .build();
     //    }
 
-    @DeleteMapping("/{contractId}")
-    ApiResponse deleteContact(@PathVariable int contractId) {
-        contractService.deleteContract(contractId);
+    @DeleteMapping("/{id}")
+    ApiResponse deleteContact(@PathVariable int id) {
+        contractService.deleteContract(id);
         return ApiResponse.builder().build();
     }
 }

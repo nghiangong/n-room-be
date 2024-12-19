@@ -19,7 +19,5 @@ public class ContractRes {
     Integer numberOfPeople;
     Integer numberOfBicycle;
     Integer numberOfMotorbike;
-    Integer startElecNumber;
-    Integer startWaterNumber;
     String status;
 }

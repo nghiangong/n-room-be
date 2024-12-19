@@ -1,9 +1,8 @@
 package com.nghiangong.repository;
 
-import java.util.Arrays;
+import java.time.LocalDate;
 import java.util.List;
 
-import com.nghiangong.constant.ContractStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -24,12 +23,17 @@ public interface ContractRepository extends JpaRepository<Contract, Integer> {
 
     List<Contract> findByRoomHouseManagerId(int id);
 
-//    @Query("""
-//            SELECT c FROM Contract c
-//            JOIN Room m ON m.currentContract.id = c.id
-//            WHERE c.repTenant.id = :repTenantId
-//            """)
-//    List<Contract> findByRepTenantIdAndStatuses(@Param("repTenantId") int repTenantId,
-//                                                @Param("statuses") List<ContractStatus> statuses);
+    @Query("""
+            SELECT c 
+            FROM Contract c
+            JOIN c.room r
+            JOIN r.house h
+            WHERE c.startDate <= :lastOfMonth
+              AND (c.endDate IS NULL OR :lastOfMonth <= c.endDate)
+              AND h.id = :houseId
+            """
+    )
+    List<Contract> findByHouseIdWithoutInvoiceOfMonth(@Param("houseId") int houseId,
+                                                      @Param("lastOfMonth") LocalDate lastOfMonth);
 
 }

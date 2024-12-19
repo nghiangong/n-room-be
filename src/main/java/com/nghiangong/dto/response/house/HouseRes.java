@@ -18,4 +18,7 @@ public class HouseRes {
     String district;
     String ward;
     String status;
+
+    boolean havingElecIndex;
+    boolean havingWaterIndex;
 }

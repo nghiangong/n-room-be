@@ -2,11 +2,8 @@ package com.nghiangong.model;
 
 import java.util.List;
 
-import com.nghiangong.dto.request.invoice.CheckoutInvoiceReq;
 import com.nghiangong.entity.room.Invoice;
 import com.nghiangong.entity.room.InvoiceItem;
-import com.nghiangong.entity.room.Room;
-import com.nghiangong.service.ElecWaterRecordService;
 
 public class BaseRentCalculator {
 

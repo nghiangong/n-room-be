@@ -4,9 +4,7 @@ import java.util.List;
 
 import jakarta.persistence.*;
 
-import com.nghiangong.constant.ElecChargeCalc;
 import com.nghiangong.constant.HouseStatus;
-import com.nghiangong.constant.WaterChargeCalc;
 import com.nghiangong.entity.room.Room;
 import com.nghiangong.entity.user.Manager;
 
@@ -37,11 +35,8 @@ public class House {
     @JoinColumn(name = "manager_id")
     Manager manager;
 
-    @Enumerated(EnumType.STRING)
-    ElecChargeCalc elecChargeCalc;
-
-    @Enumerated(EnumType.STRING)
-    WaterChargeCalc waterChargeCalc;
+    boolean havingElecIndex;
+    boolean havingWaterIndex;
 
     @OneToMany(mappedBy = "house", cascade = CascadeType.ALL)
     List<Room> rooms;

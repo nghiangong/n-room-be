@@ -77,4 +77,10 @@ public class HouseController {
                 .result(roomService.getNameList(id))
                 .build();
     }
+
+    @DeleteMapping("/{id}")
+    ApiResponse delete(@PathVariable int id) {
+        houseService.delete(id);
+        return ApiResponse.builder().build();
+    }
 }

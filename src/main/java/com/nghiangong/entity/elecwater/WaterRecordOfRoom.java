@@ -21,9 +21,13 @@ public class WaterRecordOfRoom {
     int id;
 
     LocalDate date;
-    int value;
+    Integer value;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     Room room;
+
+    public WaterRecordOfRoom(LocalDate date) {
+        this.date = date;
+    }
 }

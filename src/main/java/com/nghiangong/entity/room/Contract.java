@@ -3,6 +3,7 @@ package com.nghiangong.entity.room;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.nghiangong.constant.RoomStatus;
 import com.nghiangong.exception.AppException;
 import com.nghiangong.exception.ErrorCode;
 import com.nghiangong.model.DateUtils;
@@ -37,10 +38,11 @@ public class Contract {
     Integer startElecNumber;
     Integer startWaterNumber;
 
-    Integer endELecNumber;
+    Integer endElecNumber;
     Integer endWaterNumber;
 
     @Enumerated(EnumType.STRING)
+    @Setter(AccessLevel.NONE)
     ContractStatus status = ContractStatus.ACTIVE;
 
     @OneToOne(cascade = CascadeType.ALL)
@@ -50,24 +52,53 @@ public class Contract {
     @JoinColumn(name = "room_id")
     Room room;
 
-    @OneToMany(mappedBy = "contract")
+    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL)
     List<Invoice> invoices;
 
+    public void setRoom(Room room) {
+        if (room == null) return;
+        if (this.room == room) return;
+        switch (this.status) {
+            case ACTIVE:
+            case SOON_INACTIVE:
+            case PENDING_CHECKOUT:
+                if (this.room != null)
+                    this.room.setStatus(RoomStatus.AVAILABLE);
+                this.room = room;
+                this.room.setCurrentContract(this);
+                break;
+        }
+    }
+
+    public void sync() {
+        LocalDate today = LocalDate.now();
+        switch (status) {
+            case INACTIVE, PENDING_PAYMENT: return;
+            default:
+                if (!endDate.isAfter(today))
+                    status = ContractStatus.PENDING_CHECKOUT;
+                else
+                    if (DateUtils.remainingDateLessAMonth(endDate))
+                        status = ContractStatus.SOON_INACTIVE;
+                    else
+                        status = ContractStatus.ACTIVE;
+                break;
+        }
+    }
+
     public void setEndDate(LocalDate endDate) {
-        this.endDate = endDate;
-        if (status == ContractStatus.ACTIVE && DateUtils.remainingDateLessAMonth(this.endDate))
-            status = ContractStatus.PENDING_CHECKOUT;
+        switch (status) {
+            case INACTIVE, PENDING_PAYMENT:
+                throw new AppException(ErrorCode.NOT_CHANGE_END_DATE);
+            default:
+                this.endDate = endDate;
+                sync();
+        }
     }
 
-    @PrePersist
-    public void prePersist() {
-        if (status == null) status = ContractStatus.ACTIVE;
-    }
-
-//    @PrePersist
-    @PreUpdate
-    public void preSave() {
-//        if (status == ContractStatus.ACTIVE && DateUtils.remainingDateLessAMonth(this.endDate))
-//            status = ContractStatus.PENDING_CHECKOUT;
+    @PreRemove
+    public void preRemove() {
+        if (this.room.getCurrentContract() == this)
+            room.setAvailable();
     }
 }

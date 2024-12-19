@@ -2,6 +2,7 @@ package com.nghiangong.entity.room;
 
 import java.util.List;
 
+import com.nghiangong.constant.ContractStatus;
 import com.nghiangong.entity.elecwater.ElecRecordOfRoom;
 import com.nghiangong.exception.AppException;
 import com.nghiangong.exception.ErrorCode;
@@ -28,6 +29,7 @@ public class Room {
     String name;
     int price;
 
+    @Setter(AccessLevel.NONE)
     @Enumerated(EnumType.STRING)
     RoomStatus status = RoomStatus.AVAILABLE;
 
@@ -51,15 +53,41 @@ public class Room {
     List<WaterRecordOfRoom> waterRecords;
 
     public void setCurrentContract(Contract contract) {
-        if (contract == null) {
-            this.status = RoomStatus.AVAILABLE;
-            this.currentContract = null;
-        } else
-        if (this.status == RoomStatus.AVAILABLE) {
-            this.currentContract = contract;
-            this.status = RoomStatus.OCCUPIED;
-            this.currentContract.setRoom(this);
+        if (contract == null) return;
+
+        switch (this.status) {
+            case AVAILABLE:
+                this.currentContract = contract;
+                this.status = RoomStatus.OCCUPIED;
+                break;
+            case INACTIVE:
+                throw new AppException(ErrorCode.ROOM_INACTIVE);
+            case SOON_AVAILABLE:
+            case OCCUPIED:
+                throw new AppException(ErrorCode.ROOM_HAVING_CONTRACT);
         }
-        else throw new AppException(ErrorCode.ROOM_HAVING_CONTRACT);
+    }
+
+    public void setAvailable() {
+        currentContract = null;
+        sync();
+    }
+
+    public void sync() {
+        if (status == RoomStatus.INACTIVE) return;
+        if (currentContract == null) status = RoomStatus.AVAILABLE;
+        else
+            switch (currentContract.getStatus()) {
+                case ACTIVE:
+                    status = RoomStatus.OCCUPIED;
+                    break;
+                case SOON_INACTIVE:
+                case PENDING_CHECKOUT:
+                    status = RoomStatus.SOON_AVAILABLE;
+                    break;
+                default:
+                    status = RoomStatus.AVAILABLE;
+                    currentContract = null;
+            }
     }
 }

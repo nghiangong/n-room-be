@@ -20,13 +20,6 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
     @Query("SELECT r.status, COUNT(r) FROM Room r WHERE r.house = :house GROUP BY r.status")
     List<Object[]> countRoomsByStatusForHouse(@Param("house") House house);
 
-    @Query("SELECT r FROM Room r " + "JOIN r.currentContract c "
-            + "LEFT JOIN Invoice i ON i.contract = c AND i.endDate = :date "
-            + "WHERE r.house.id = :houseId "
-            + "AND (r.status = 'OCCUPIED' OR r.status = 'SOON_AVAILABLE') "
-            + "AND i.id IS NULL")
-    List<Room> findRentedRoomsWithoutInvoice(@Param("houseId") int houseId, @Param("date") LocalDate date);
-
     @Query("SELECT r.status, COUNT(r) FROM Room r WHERE r.house.id = :houseId GROUP BY r.status")
     List<Object[]> countRoomsByStatusAndHouseId(@Param("houseId") int houseId);
 

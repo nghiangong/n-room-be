@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
+import java.util.List;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -21,6 +23,9 @@ public class Tenant extends User {
     @ManyToOne
     @JoinColumn(name = "rep_tenant_id")
     Tenant repTenant;
+
+    @OneToMany(mappedBy = "repTenant", cascade = CascadeType.ALL)
+    List<Tenant> members;
 
     @PrePersist
     public void prePersist() {

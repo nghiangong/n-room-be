@@ -23,7 +23,9 @@ public class ContractDetailRes {
     Integer numberOfBicycle;
     Integer numberOfMotorbike;
     Integer startElecNumber;
-    Integer startWaterNumber = 0;
+    Integer startWaterNumber;
+    Integer endElecNumber;
+    Integer endWaterNumber;
     String status;
 
 

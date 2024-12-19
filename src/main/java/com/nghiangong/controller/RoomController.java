@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.nghiangong.dto.request.room.RoomReq;
 import com.nghiangong.dto.response.room.RoomDetailRes;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import com.nghiangong.dto.response.ApiResponse;
@@ -55,5 +56,11 @@ public class RoomController {
         roomService.createRoom(request);
         return ApiResponse.builder()
                 .build();
+    }
+
+    @DeleteMapping("/{id}")
+    ApiResponse delete(@PathVariable int id) {
+        roomService.delete(id);
+        return ApiResponse.builder().build();
     }
 }

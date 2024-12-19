@@ -1,10 +1,7 @@
 package com.nghiangong.dto.response.house;
 
-import com.nghiangong.constant.ElecChargeCalc;
-import com.nghiangong.constant.WaterChargeCalc;
 import com.nghiangong.dto.response.otherFee.OtherFeeRes;
 import com.nghiangong.dto.response.user.UserRes;
-import com.nghiangong.entity.user.Manager;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -28,13 +25,13 @@ public class HouseDetailRes {
 
     UserRes manager;
 
-    //elecs info
-    ElecChargeCalc elecChargeCalc;
+    boolean havingElecIndex;
+    boolean havingWaterIndex;
+
     List<Integer> elecCostByPeopleCount;
     Integer elecPricePerUnit;
 
     //waters info
-    WaterChargeCalc waterChargeCalc;
     Integer waterChargePerPerson;
     Integer waterPricePerUnit;
 }

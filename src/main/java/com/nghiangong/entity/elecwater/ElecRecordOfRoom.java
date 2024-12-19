@@ -21,9 +21,13 @@ public class ElecRecordOfRoom {
     int id;
 
     LocalDate date;
-    int value;
+    Integer value;
 
     @ManyToOne
     @JoinColumn(name = "room_id")
     Room room;
+
+    public ElecRecordOfRoom(LocalDate date) {
+        this.date = date;
+    }
 }

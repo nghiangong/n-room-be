@@ -18,17 +18,26 @@ public enum ErrorCode {
     UNAUTHENTICATED(16, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(17, "You do not have permission", HttpStatus.FORBIDDEN),
     HOUSE_NOT_EXISTED(18, "House not existed", HttpStatus.BAD_REQUEST),
+
     ROOM_HAVING_CONTRACT(30, "Phòng này đang có hợp đồng.", HttpStatus.BAD_REQUEST),
     ROOM_ENOUGH_MEMBER(31, "Phòng đã có đủ người", HttpStatus.BAD_REQUEST),
-
+    ROOM_INACTIVE(32, "Phòng đã ngưng hoạt động", HttpStatus.BAD_REQUEST),
+    ROOM_NOT_EXISTED(33, "Phòng không tồn tại", HttpStatus.BAD_REQUEST),
 
     ELEC_NUMBER_NOT_ENTERED(40, "Chưa nhập số điện", HttpStatus.BAD_REQUEST),
     WATER_NUMBER_NOT_ENTERED(41, "Chưa nhập số nước", HttpStatus.BAD_REQUEST),
     ELEC_NUMBER_NOT_VALID(42, "Số điện nhập không hợp lệ", HttpStatus.BAD_REQUEST),
     WATER_NUMBER_NOT_VALID(43, "Số nước nhập không hợp lệ", HttpStatus.BAD_REQUEST),
+    START_ELEC_NUMBER_NOT_VALID(44, "Số điện đầu không hợp lệ", HttpStatus.BAD_REQUEST),
+    START_WATER_NUMBER_NOT_VALID(45, "Số nước đầu không hợp lệ", HttpStatus.BAD_REQUEST),
+    END_ELEC_NUMBER_NOT_VALID(46, "Số điện cuối không hợp lệ", HttpStatus.BAD_REQUEST),
+    END_WATER_NUMBER_NOT_VALID(47, "Số nước cuối không hợp lệ", HttpStatus.BAD_REQUEST),
 
     CONTRACT_INVALID(60, "Hợp đồng không hợp lệ", HttpStatus.BAD_REQUEST),
     CONTRACT_NOT_EXISTED(61, "Hợp đồng không tồn tại", HttpStatus.BAD_REQUEST),
+    CONTRACT_NOT_EXPIRED(62, "Hợp đồng chưa hết hạn", HttpStatus.BAD_REQUEST),
+    CONTRACT_NO_STATUS(63, "Hợp đồng không có trạng thái", HttpStatus.INTERNAL_SERVER_ERROR),
+    NOT_CHANGE_END_DATE(64, "Ngày kết thúc không thể thay đổi", HttpStatus.BAD_REQUEST),
 
     INVOICE_NOT_EXISTED(70, "Hóa đơn không tồn tại", HttpStatus.BAD_REQUEST),
     INVOICE_OF_MONTH_EXISTED(71, "Hóa đơn tháng đã tồn tại", HttpStatus.BAD_REQUEST),

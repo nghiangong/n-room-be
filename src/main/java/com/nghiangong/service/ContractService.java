@@ -6,7 +6,6 @@ import com.nghiangong.constant.Role;
 import com.nghiangong.dto.request.contract.ContractReq;
 import com.nghiangong.dto.response.contract.ContractDetailRes;
 import com.nghiangong.dto.response.contract.ContractRes;
-import com.nghiangong.model.PasswordEncoderC;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,29 +36,23 @@ public class ContractService {
 
     @Transactional
     public void createContract(ContractReq request) {
-        Room room = roomRepository
-                .findById(request.getRoomId())
-                .orElseThrow(() -> new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION));
+        Room room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
         Contract newContract = contractMapper.toContract(request);
         newContract.setStatus(ContractStatus.ACTIVE);
+        newContract.setRoom(room);
+
         Tenant newTenant = newContract.getRepTenant();
         newTenant.setRole(Role.REP_TENANT);
-        newTenant.setPassword(PasswordEncoderC.encode("1"));
-        newContract.setRoom(room);
-        room.setCurrentContract(newContract);
     }
 
     @Transactional
     public void updateContract(int id, ContractReq request) {
         Contract contract = contractRepository.findById(id).orElseThrow();
         contractMapper.update(contract, request);
-        if (contract.getRoom().getId() != request.getRoomId()) {
-            Room room = roomRepository
-                    .findById(request.getRoomId())
-                    .orElseThrow(() -> new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION));
-            contract.getRoom().setCurrentContract(null);
-            room.setCurrentContract(contract);
-        }
+        Room room = roomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
+        contract.setRoom(room);
     }
 
     public ContractRes getContract(int contractId) {
@@ -75,15 +68,19 @@ public class ContractService {
                 .toList();
     }
 
-    public void deleteContract(int contractId) {
-        contractRepository.deleteById(contractId);
-    }
 
     public List<ContractDetailRes> getList() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         int id = Integer.parseInt(authentication.getName());
 
-        return contractRepository.findByRoomHouseManagerId(id).stream().map(contractMapper::toContractDetailRes).toList();
+        return contractRepository.findByRoomHouseManagerId(id).stream().map(
+                contractMapper::toContractDetailRes).toList();
 
+    }
+
+    @Transactional
+    public void deleteContract(int id) {
+        contractRepository.deleteById(id);
+        System.out.println("delete contract " + id);
     }
 }

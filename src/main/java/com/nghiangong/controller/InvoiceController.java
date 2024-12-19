@@ -21,8 +21,8 @@ public class InvoiceController {
     InvoiceService invoiceService;
 
     @PostMapping
-    ApiResponse createInvoice(@RequestParam int houseId, @RequestParam LocalDate date) {
-        invoiceService.createInvoice(houseId, date);
+    ApiResponse createMonthlyInvoices(@RequestParam int houseId, @RequestParam LocalDate date) {
+        invoiceService.createMonthlyInvoices(houseId, date);
         return ApiResponse.builder().build();
     }
 
@@ -36,6 +36,12 @@ public class InvoiceController {
     @PutMapping("/{id}/paid")
     ApiResponse setPaid(@PathVariable("id") Integer id) {
         invoiceService.setPaid(id);
+        return ApiResponse.builder().build();
+    }
+
+    @DeleteMapping("/{id}")
+    ApiResponse delete(@PathVariable("id") int id) {
+        invoiceService.delete(id);
         return ApiResponse.builder().build();
     }
 }

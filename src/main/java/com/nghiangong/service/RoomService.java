@@ -23,6 +23,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -59,8 +60,7 @@ public class RoomService {
                 .orElseThrow(() -> new AppException(ErrorCode.HOUSE_NOT_EXISTED));
         Room newRoom = roomMapper.toRoom(request);
         newRoom.setHouse(house);
-        newRoom.setStatus(RoomStatus.AVAILABLE);
-        newRoom = roomRepository.save(newRoom);
+        roomRepository.save(newRoom);
     }
 
     public void updateRoom(int id, RoomReq request) {
@@ -74,5 +74,10 @@ public class RoomService {
 
     public List<RoomNameRes> getNameList(int houseId) {
         return roomRepository.findByHouseIdOrderByNameAsc(houseId).stream().map(roomMapper::toRoomNameRes).toList();
+    }
+
+    @Transactional
+    public void delete(int id) {
+        roomRepository.deleteById(id);
     }
 }

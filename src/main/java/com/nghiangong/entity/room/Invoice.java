@@ -30,6 +30,7 @@ public class Invoice {
 
     boolean checkout;
 
+    @Setter(AccessLevel.NONE)
     @Enumerated(EnumType.STRING)
     InvoiceStatus status = InvoiceStatus.UNPAID;
 
@@ -39,6 +40,13 @@ public class Invoice {
     @ManyToOne
     @JoinColumn(name = "contract_id")
     Contract contract;
+
+    public void setPaid() {
+        if (this.status == InvoiceStatus.PAID) return;
+        this.status = InvoiceStatus.PAID;
+        if (this.isCheckout())
+            this.contract.set
+    }
 
     public void addInvoiceItem(InvoiceItem invoiceItem) {
         invoiceItems.addLast(invoiceItem);

@@ -1,6 +1,5 @@
 package com.nghiangong.controller;
 
-import com.nghiangong.dto.request.EnterRecords;
 import com.nghiangong.dto.response.ApiResponse;
 import com.nghiangong.dto.response.elecwater.ElecwaterRecordRes;
 import com.nghiangong.service.ElecWaterRecordService;
@@ -27,7 +26,6 @@ public class ElecWaterRecordController {
 
     @PutMapping("/elecRecords/{id}")
     ApiResponse editElecRecord(@PathVariable int id, @RequestParam int value) {
-        System.out.println("--------------hkhkhkhhk");
         elecWaterRecordService.editElecRecord(id, value);
         return ApiResponse.builder().build();
     }
@@ -35,18 +33,6 @@ public class ElecWaterRecordController {
     @PutMapping("/waterRecords/{id}")
     ApiResponse editWaterRecord(@PathVariable int id, @RequestParam int value) {
         elecWaterRecordService.editWaterRecord(id, value);
-        return ApiResponse.builder().build();
-    }
-
-    @PostMapping("/elecRecords")
-    ApiResponse enterElecRecords(@RequestBody EnterRecords request) {
-        elecWaterRecordService.enterElecRecords(request);
-        return ApiResponse.builder().build();
-    }
-
-    @PostMapping("/waterRecords")
-    ApiResponse enterWaterRecords(@RequestBody EnterRecords request) {
-        elecWaterRecordService.enterWaterRecords(request);
         return ApiResponse.builder().build();
     }
 }

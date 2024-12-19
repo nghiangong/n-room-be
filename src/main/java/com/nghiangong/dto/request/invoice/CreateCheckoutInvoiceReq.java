@@ -10,8 +10,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CheckoutInvoiceReq {
-    int contractId;
-    int endElecNumber;
-    int endWaterNumber;
+public class CreateCheckoutInvoiceReq {
+    Integer endElecNumber;
+    Integer endWaterNumber;
 }

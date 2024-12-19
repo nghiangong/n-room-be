@@ -1,7 +1,6 @@
 package com.nghiangong.model;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 
 public class DateUtils {
@@ -44,5 +43,9 @@ public class DateUtils {
     public static boolean remainingDateLessAMonth(LocalDate endDate) {
         LocalDate today = LocalDate.now();
         return endDate.minusMonths(1).isBefore(today);
+    }
+
+    public static LocalDate latestDate(LocalDate date1, LocalDate date2){
+        return date1.isAfter(date2) ? date1 : date2;
     }
 }

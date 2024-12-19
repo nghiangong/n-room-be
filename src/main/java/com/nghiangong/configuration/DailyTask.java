@@ -44,13 +44,9 @@ public class DailyTask {
             switch (contract.getStatus()){
                 case ACTIVE -> {
                     if (DateUtils.remainingDateLessAMonth(contract.getEndDate()))
+                        contract.setStatus(ContractStatus.SOON_INACTIVE);
+                    if (!contract.getEndDate().isAfter(LocalDate.now()))
                         contract.setStatus(ContractStatus.PENDING_CHECKOUT);
-                    if (!contract.getEndDate().isAfter(LocalDate.now()))
-                        contract.setStatus(ContractStatus.PENDING_PAYMENT);
-                }
-                case PENDING_CHECKOUT -> {
-                    if (!contract.getEndDate().isAfter(LocalDate.now()))
-                        contract.setStatus(ContractStatus.PENDING_PAYMENT);
                 }
             }
         }
