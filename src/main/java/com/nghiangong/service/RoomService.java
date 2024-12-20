@@ -52,8 +52,6 @@ public class RoomService {
         return roomRepository.findByHouseIdOrderByNameAsc(houseId).stream().map(roomMapper::toRoomRes).toList();
     }
 
-
-
     public void createRoom(RoomReq request) {
         House house = houseRepository
                 .findById(request.getHouseId())

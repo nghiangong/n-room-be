@@ -53,25 +53,28 @@ public class HouseService {
 
         return houseRepository.findByManagerId(id).stream()
                 .map((house) -> {
-                    var houseRes = houseMapper.toHouseStatisticRes(house);
-                    var roomCounts = roomRepository.countRoomsByStatusForHouse(house);
-                    Map<RoomStatus, Long> roomStatusCounts = roomCounts.stream()
-                            .collect(Collectors.toMap(
-                                    obj -> (RoomStatus) obj[0],  // Trạng thái (status)
-                                    obj -> (Long) obj[1]    // Số lượng (count)
-                            ));
+                            var houseRes = houseMapper.toHouseStatisticRes(house);
 
-                    // Cập nhật số lượng phòng theo từng trạng thái vào HouseStatisticRes
-                    houseRes.setRoomsCount(
-                            roomStatusCounts.values().stream().mapToInt(Long::intValue).sum()  // Sum the values
-                    );
-                    houseRes.setAvailableRoomsCount(roomStatusCounts.getOrDefault(RoomStatus.AVAILABLE, 0L).intValue());
-                    houseRes.setOccupiedRoomsCount(roomStatusCounts.getOrDefault(RoomStatus.OCCUPIED, 0L).intValue());
-                    houseRes.setInactiveRoomsCount(roomStatusCounts.getOrDefault(RoomStatus.INACTIVE, 0L).intValue());
-                    houseRes.setAvailableSoonRoomsCount(roomStatusCounts.getOrDefault(RoomStatus.SOON_AVAILABLE, 0L).intValue());
+                            List<Room> rooms = house.getRooms();
 
-                    return houseRes;
-                })
+                            Map<RoomStatus, Long> roomStatusCounts = rooms.stream()
+                                    .collect(Collectors.groupingBy(
+                                            Room::getStatus,  // Lấy trạng thái từ phòng
+                                            Collectors.counting()  // Đếm số lượng phòng theo trạng thái
+                                    ));
+
+                            houseRes.setRoomsCount(
+                                    roomStatusCounts.values().stream().mapToInt(Long::intValue).sum()  // Sum the values
+                            );
+                            houseRes.setAvailableRoomsCount(roomStatusCounts.getOrDefault(RoomStatus.AVAILABLE, 0L).intValue());
+                            houseRes.setOccupiedRoomsCount(roomStatusCounts.getOrDefault(RoomStatus.OCCUPIED, 0L).intValue());
+                            houseRes.setInactiveRoomsCount(roomStatusCounts.getOrDefault(RoomStatus.INACTIVE, 0L).intValue());
+                            houseRes.setAvailableSoonRoomsCount(
+                                    roomStatusCounts.getOrDefault(RoomStatus.SOON_AVAILABLE, 0L).intValue());
+
+                            return houseRes;
+                        }
+                )
                 .toList();
     }
 
@@ -103,7 +106,7 @@ public class HouseService {
         house.setStatus(HouseStatus.ACTIVE);
         return houseMapper.toHouseDetailRes(houseRepository.save(house));
     }
-    
+
     public List<HouseNameRes> getNameList() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         int id = Integer.parseInt(authentication.getName());

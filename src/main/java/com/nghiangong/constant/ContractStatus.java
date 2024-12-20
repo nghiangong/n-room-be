@@ -2,8 +2,8 @@ package com.nghiangong.constant;
 
 public enum ContractStatus {
     ACTIVE,
-    SOON_INACTIVE,
+    SOON_EXPIRED,
     PENDING_CHECKOUT,
-    PENDING_PAYMENT,
-    INACTIVE
+//    PENDING_PAYMENT,
+    EXPIRED
 }

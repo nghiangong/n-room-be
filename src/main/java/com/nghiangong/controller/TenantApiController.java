@@ -48,20 +48,6 @@ public class TenantApiController {
                 .build();
     }
 
-    @PutMapping("/contracts/stopAtCycleEnd")
-    ApiResponse stopContractAtCycleEnd() {
-        repTenantApiService.stopContractAtCycleEnd();
-        return ApiResponse.builder()
-                .build();
-    }
-
-    @PutMapping("/contracts/stopAtNextCycleEnd")
-    ApiResponse stopContractAtNextCycleEnd() {
-        repTenantApiService.stopContractAtNextCycleEnd();
-        return ApiResponse.builder()
-                .build();
-    }
-
     @GetMapping("/invoices")
     ApiResponse<List<InvoiceRes>> getInvoices() {
         return ApiResponse.<List<InvoiceRes>>builder()

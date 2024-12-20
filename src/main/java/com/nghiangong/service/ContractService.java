@@ -10,7 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.nghiangong.constant.ContractStatus;
 import com.nghiangong.entity.room.Contract;
 import com.nghiangong.entity.room.Room;
 import com.nghiangong.entity.user.Tenant;
@@ -39,7 +38,6 @@ public class ContractService {
         Room room = roomRepository.findById(request.getRoomId())
                 .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
         Contract newContract = contractMapper.toContract(request);
-        newContract.setStatus(ContractStatus.ACTIVE);
         newContract.setRoom(room);
 
         Tenant newTenant = newContract.getRepTenant();
@@ -79,8 +77,11 @@ public class ContractService {
     }
 
     @Transactional
-    public void deleteContract(int id) {
-        contractRepository.deleteById(id);
-        System.out.println("delete contract " + id);
+    public void delete(int id) {
+        var contract = contractRepository.findById(id).orElse(null);
+        if (contract == null) return;
+        if (contract.getInvoices().size() > 0)
+            throw new AppException(ErrorCode.NOT_DELETE_CONTRACT);
+        contractRepository.delete(contract);
     }
 }

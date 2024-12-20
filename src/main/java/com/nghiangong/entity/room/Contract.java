@@ -1,12 +1,12 @@
 package com.nghiangong.entity.room;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import com.nghiangong.constant.RoomStatus;
+import com.nghiangong.constant.PaymentStatus;
 import com.nghiangong.exception.AppException;
 import com.nghiangong.exception.ErrorCode;
-import com.nghiangong.model.DateUtils;
 import jakarta.persistence.*;
 
 import com.nghiangong.constant.ContractStatus;
@@ -28,7 +28,6 @@ public class Contract {
 
     LocalDate startDate;
     LocalDate endDate;
-    LocalDate noteDate;
 
     Integer rentPrice;
     Integer deposit;
@@ -41,10 +40,6 @@ public class Contract {
     Integer endElecNumber;
     Integer endWaterNumber;
 
-    @Enumerated(EnumType.STRING)
-    @Setter(AccessLevel.NONE)
-    ContractStatus status = ContractStatus.ACTIVE;
-
     @OneToOne(cascade = CascadeType.ALL)
     Tenant repTenant;
 
@@ -52,53 +47,53 @@ public class Contract {
     @JoinColumn(name = "room_id")
     Room room;
 
-    @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "contract", fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     List<Invoice> invoices;
 
-    public void setRoom(Room room) {
-        if (room == null) return;
-        if (this.room == room) return;
-        switch (this.status) {
-            case ACTIVE:
-            case SOON_INACTIVE:
-            case PENDING_CHECKOUT:
-                if (this.room != null)
-                    this.room.setStatus(RoomStatus.AVAILABLE);
-                this.room = room;
-                this.room.setCurrentContract(this);
-                break;
-        }
+    public ContractStatus getStatus() {
+        if (endDate == null) return ContractStatus.ACTIVE;
+        Long daysBetween = ChronoUnit.DAYS.between(LocalDate.now(), endDate);
+        if (0 < daysBetween && daysBetween < 30) return ContractStatus.SOON_EXPIRED;
+        if (!isHavingCheckoutInvoice()) return ContractStatus.PENDING_CHECKOUT;
+        if (endDate.isAfter(LocalDate.now())) return ContractStatus.EXPIRED;
+        return ContractStatus.ACTIVE;
     }
 
-    public void sync() {
-        LocalDate today = LocalDate.now();
-        switch (status) {
-            case INACTIVE, PENDING_PAYMENT: return;
-            default:
-                if (!endDate.isAfter(today))
-                    status = ContractStatus.PENDING_CHECKOUT;
-                else
-                    if (DateUtils.remainingDateLessAMonth(endDate))
-                        status = ContractStatus.SOON_INACTIVE;
-                    else
-                        status = ContractStatus.ACTIVE;
-                break;
-        }
+    public void setRoom(Room newRoom) {
+
     }
 
     public void setEndDate(LocalDate endDate) {
-        switch (status) {
-            case INACTIVE, PENDING_PAYMENT:
-                throw new AppException(ErrorCode.NOT_CHANGE_END_DATE);
+        if (this.endDate == endDate) return;
+        switch (getStatus()) {
+            case EXPIRED:
+                throw new AppException(ErrorCode.EXPIRED_CONTRACT_NOT_CHANGE_END_DATE);
             default:
                 this.endDate = endDate;
-                sync();
         }
     }
+
+    public PaymentStatus getPaymentStatus() {
+        if (getUnpaidInvoiceCount() > 0) return PaymentStatus.UNPAID;
+        return PaymentStatus.PAID;
+    }
+
+    boolean isHavingCheckoutInvoice() {
+        return invoices.stream()
+                .anyMatch(invoice -> invoice.isCheckout());
+    }
+
+
+    public int getUnpaidInvoiceCount() {
+        return (int) invoices.stream()
+                .filter(invoice -> invoice.getStatus() == PaymentStatus.UNPAID)
+                .count();
+    }
+
 
     @PreRemove
     public void preRemove() {
         if (this.room.getCurrentContract() == this)
-            room.setAvailable();
+            room.setCurrentContract(null);
     }
 }

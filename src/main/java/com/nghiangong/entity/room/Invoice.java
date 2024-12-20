@@ -4,9 +4,8 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.nghiangong.constant.PaymentStatus;
 import jakarta.persistence.*;
-
-import com.nghiangong.constant.InvoiceStatus;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -32,7 +31,7 @@ public class Invoice {
 
     @Setter(AccessLevel.NONE)
     @Enumerated(EnumType.STRING)
-    InvoiceStatus status = InvoiceStatus.UNPAID;
+    PaymentStatus status = PaymentStatus.UNPAID;
 
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
     List<InvoiceItem> invoiceItems = new ArrayList<>();
@@ -42,10 +41,8 @@ public class Invoice {
     Contract contract;
 
     public void setPaid() {
-        if (this.status == InvoiceStatus.PAID) return;
-        this.status = InvoiceStatus.PAID;
-        if (this.isCheckout())
-            this.contract.set
+        if (status == PaymentStatus.PAID) return;
+        status = PaymentStatus.PAID;
     }
 
     public void addInvoiceItem(InvoiceItem invoiceItem) {

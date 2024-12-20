@@ -37,7 +37,8 @@ public enum ErrorCode {
     CONTRACT_NOT_EXISTED(61, "Hợp đồng không tồn tại", HttpStatus.BAD_REQUEST),
     CONTRACT_NOT_EXPIRED(62, "Hợp đồng chưa hết hạn", HttpStatus.BAD_REQUEST),
     CONTRACT_NO_STATUS(63, "Hợp đồng không có trạng thái", HttpStatus.INTERNAL_SERVER_ERROR),
-    NOT_CHANGE_END_DATE(64, "Ngày kết thúc không thể thay đổi", HttpStatus.BAD_REQUEST),
+    EXPIRED_CONTRACT_NOT_CHANGE_END_DATE(64, "Hợp đồng đã kết thúc. Không thể thay đổi ngày kết thúc.", HttpStatus.BAD_REQUEST),
+    NOT_DELETE_CONTRACT(65, "Không thể xóa. Hợp đồng đang có liên quan đến nhiều hóa đơn.", HttpStatus.BAD_REQUEST),
 
     INVOICE_NOT_EXISTED(70, "Hóa đơn không tồn tại", HttpStatus.BAD_REQUEST),
     INVOICE_OF_MONTH_EXISTED(71, "Hóa đơn tháng đã tồn tại", HttpStatus.BAD_REQUEST),

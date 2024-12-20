@@ -45,7 +45,7 @@ public class DateUtils {
         return endDate.minusMonths(1).isBefore(today);
     }
 
-    public static LocalDate latestDate(LocalDate date1, LocalDate date2){
+    public static LocalDate latestDate(LocalDate date1, LocalDate date2) {
         return date1.isAfter(date2) ? date1 : date2;
     }
 }

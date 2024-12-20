@@ -17,12 +17,6 @@ import com.nghiangong.entity.room.Room;
 public interface RoomRepository extends JpaRepository<Room, Integer> {
     List<Room> findByHouseIdOrderByNameAsc(int houseId);
 
-    @Query("SELECT r.status, COUNT(r) FROM Room r WHERE r.house = :house GROUP BY r.status")
-    List<Object[]> countRoomsByStatusForHouse(@Param("house") House house);
-
-    @Query("SELECT r.status, COUNT(r) FROM Room r WHERE r.house.id = :houseId GROUP BY r.status")
-    List<Object[]> countRoomsByStatusAndHouseId(@Param("houseId") int houseId);
-
     List<Room> findByHouseManagerId(int managerId);
 
     @Query("""

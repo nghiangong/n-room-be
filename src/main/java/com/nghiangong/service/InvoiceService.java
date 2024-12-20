@@ -2,7 +2,6 @@ package com.nghiangong.service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 
 import com.nghiangong.dto.request.invoice.CreateCheckoutInvoiceReq;
@@ -13,11 +12,9 @@ import com.nghiangong.repository.ContractRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import com.nghiangong.constant.InvoiceStatus;
 import com.nghiangong.entity.House;
 import com.nghiangong.entity.room.Contract;
 import com.nghiangong.entity.room.Invoice;
-import com.nghiangong.entity.room.Room;
 import com.nghiangong.exception.AppException;
 import com.nghiangong.exception.ErrorCode;
 import com.nghiangong.mapper.InvoiceMapper;
@@ -30,7 +27,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
 
 @Service
 @RequiredArgsConstructor
@@ -73,13 +69,11 @@ public class InvoiceService {
             case PENDING_CHECKOUT: {
                 break;
             }
-            case PENDING_PAYMENT:
+            case EXPIRED:
                 throw new AppException(ErrorCode.INVOICE_EXISTED);
             case ACTIVE:
-            case SOON_INACTIVE:
+            case SOON_EXPIRED:
                 throw new AppException(ErrorCode.CONTRACT_NOT_EXPIRED);
-            case INACTIVE:
-                return;
             default: {
                 throw new AppException(ErrorCode.CONTRACT_NO_STATUS);
             }
@@ -126,13 +120,11 @@ public class InvoiceService {
     public void setPaid(Integer invoiceId) {
         var invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new AppException(ErrorCode.INVOICE_NOT_EXISTED));
-        invoice.setStatus(InvoiceStatus.PAID);
-
+        invoice.setPaid();
     }
 
     @Transactional
     public void delete(int id) {
-
         invoiceRepository.deleteById(id);
     }
 }

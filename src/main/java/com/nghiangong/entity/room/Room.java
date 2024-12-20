@@ -2,10 +2,8 @@ package com.nghiangong.entity.room;
 
 import java.util.List;
 
-import com.nghiangong.constant.ContractStatus;
+import com.nghiangong.constant.PaymentStatus;
 import com.nghiangong.entity.elecwater.ElecRecordOfRoom;
-import com.nghiangong.exception.AppException;
-import com.nghiangong.exception.ErrorCode;
 import jakarta.persistence.*;
 
 import com.nghiangong.constant.RoomStatus;
@@ -29,9 +27,7 @@ public class Room {
     String name;
     int price;
 
-    @Setter(AccessLevel.NONE)
-    @Enumerated(EnumType.STRING)
-    RoomStatus status = RoomStatus.AVAILABLE;
+    private boolean isActive = true;
 
     @ManyToOne
     @JoinColumn(name = "house_id", referencedColumnName = "id")
@@ -52,42 +48,30 @@ public class Room {
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
     List<WaterRecordOfRoom> waterRecords;
 
-    public void setCurrentContract(Contract contract) {
-        if (contract == null) return;
-
-        switch (this.status) {
-            case AVAILABLE:
-                this.currentContract = contract;
-                this.status = RoomStatus.OCCUPIED;
-                break;
-            case INACTIVE:
-                throw new AppException(ErrorCode.ROOM_INACTIVE);
-            case SOON_AVAILABLE:
-            case OCCUPIED:
-                throw new AppException(ErrorCode.ROOM_HAVING_CONTRACT);
+    public RoomStatus getStatus() {
+        if (!isActive) return RoomStatus.INACTIVE;
+        if (currentContract == null) return RoomStatus.AVAILABLE;
+        switch (currentContract.getStatus()) {
+            case ACTIVE: return RoomStatus.OCCUPIED;
+            case SOON_EXPIRED:
+            case PENDING_CHECKOUT:
+                return RoomStatus.SOON_AVAILABLE;
+            case EXPIRED:
+                return RoomStatus.AVAILABLE;
+            default:
+                return null;
         }
     }
 
-    public void setAvailable() {
-        currentContract = null;
-        sync();
-    }
-
-    public void sync() {
-        if (status == RoomStatus.INACTIVE) return;
-        if (currentContract == null) status = RoomStatus.AVAILABLE;
-        else
-            switch (currentContract.getStatus()) {
-                case ACTIVE:
-                    status = RoomStatus.OCCUPIED;
-                    break;
-                case SOON_INACTIVE:
-                case PENDING_CHECKOUT:
-                    status = RoomStatus.SOON_AVAILABLE;
-                    break;
-                default:
-                    status = RoomStatus.AVAILABLE;
-                    currentContract = null;
-            }
+    public PaymentStatus getPaymentStatus() {
+        switch (getStatus()) {
+            case OCCUPIED:
+            case SOON_AVAILABLE:
+                return currentContract.getPaymentStatus();
+            case INACTIVE:
+            case AVAILABLE:
+            default:
+                return null;
+        }
     }
 }
