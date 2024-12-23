@@ -2,6 +2,8 @@ package com.nghiangong.entity;
 
 import java.util.List;
 
+import com.nghiangong.exception.AppException;
+import com.nghiangong.exception.ErrorCode;
 import jakarta.persistence.*;
 
 import com.nghiangong.constant.HouseStatus;
@@ -27,9 +29,7 @@ public class House {
     String province;
     String district;
     String ward;
-
-    @Enumerated(EnumType.STRING)
-    HouseStatus status;
+    boolean active;
 
     @ManyToOne
     @JoinColumn(name = "manager_id")
@@ -39,6 +39,7 @@ public class House {
     boolean havingWaterIndex;
 
     @OneToMany(mappedBy = "house", cascade = CascadeType.ALL)
+    @OrderBy("name ASC")
     List<Room> rooms;
 
     @OneToMany(mappedBy = "house", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -51,4 +52,26 @@ public class House {
     Integer waterPricePerUnit;
 
     Integer waterChargePerPerson;
+
+    public HouseStatus getStatus() {
+        if (active) return HouseStatus.ACTIVE;
+        return HouseStatus.INACTIVE;
+    }
+
+    public void createRoom(Room newRoom) {
+        rooms.add(newRoom);
+        newRoom.setHouse(this);
+        newRoom.setActive(true);
+    }
+
+    public void deleteRoom(Room room) {
+        rooms.remove(room);
+    }
+
+    @PreRemove
+    private void preRemove() {
+        if (rooms != null && rooms.size() > 0)
+            throw new AppException(ErrorCode.NOT_DELETE_HOUSE);
+    }
+
 }

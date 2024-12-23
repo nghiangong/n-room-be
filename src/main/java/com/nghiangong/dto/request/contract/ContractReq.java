@@ -1,16 +1,14 @@
 package com.nghiangong.dto.request.contract;
 
 import com.nghiangong.dto.request.tenant.TenantReq;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
 
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ContractReq {
@@ -24,6 +22,8 @@ public class ContractReq {
     Integer numberOfMotorbike;
     Integer startElecNumber;
     Integer startWaterNumber;
+    Integer endElecNumber;
+    Integer endWaterNumber;
 
     TenantReq repTenant;
 }

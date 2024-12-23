@@ -89,19 +89,4 @@ public class TenantApiController {
         return ApiResponse.builder()
                 .build();
     }
-
-    @GetMapping("/elecRecords")
-    ApiResponse<List<RecordRes>> getElecRecords() {
-        return ApiResponse.<List<RecordRes>>builder()
-                .result(tenantApiService.getElecRecords())
-                .build();
-    }
-
-    @GetMapping("/waterRecords")
-    ApiResponse<List<RecordRes>> getWaterRecords() {
-        return ApiResponse.<List<RecordRes>>builder()
-                .result(tenantApiService.getWaterRecords())
-                .build();
-    }
-
 }

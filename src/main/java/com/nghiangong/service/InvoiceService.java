@@ -1,26 +1,23 @@
 package com.nghiangong.service;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import com.nghiangong.dto.request.invoice.CreateCheckoutInvoiceReq;
+import com.nghiangong.dto.request.invoice.CheckoutInvoiceReq;
+import com.nghiangong.dto.request.invoice.InvoiceOfHouseReq;
+import com.nghiangong.dto.request.invoice.InvoiceReq;
 import com.nghiangong.dto.response.invoice.InvoiceDetailRes;
-import com.nghiangong.dto.response.invoice.InvoiceRes;
+import com.nghiangong.entity.user.Manager;
 import com.nghiangong.model.*;
-import com.nghiangong.repository.ContractRepository;
+import com.nghiangong.repository.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.nghiangong.entity.House;
-import com.nghiangong.entity.room.Contract;
 import com.nghiangong.entity.room.Invoice;
 import com.nghiangong.exception.AppException;
 import com.nghiangong.exception.ErrorCode;
 import com.nghiangong.mapper.InvoiceMapper;
-import com.nghiangong.repository.HouseRepository;
-import com.nghiangong.repository.InvoiceRepository;
-import com.nghiangong.repository.RoomRepository;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -34,86 +31,58 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class InvoiceService {
     private final ContractRepository contractRepository;
-    HouseRepository houseRepository;
+    ManagerRepository managerRepository;
     InvoiceMapper invoiceMapper;
     InvoiceRepository invoiceRepository;
-    RoomRepository roomRepository;
-    ElecWaterRecordService elecWaterRecordService;
 
     @Transactional
-    public void createMonthlyInvoices(int houseId, LocalDate date) {
-        LocalDate month = DateUtils.endOfMonth(date);
-        List<Contract> contracts = contractRepository.findByHouseIdWithoutInvoiceOfMonth(houseId, month);
+    public List<InvoiceDetailRes> getList() {
+        var manager = getManager();
+        var invoices = manager.getInvoices();
 
-        if (contracts.size() == 0) throw new AppException(ErrorCode.INVOICE_OF_MONTH_EXISTED);
-
-        for (var contract : contracts) {
-            Invoice newInvoice = new Invoice();
-            newInvoice.setCreateDate(LocalDate.now());
-            newInvoice.setName("Hóa đơn tháng " + date.format(DateTimeFormatter.ofPattern("MM/YYYY")));
-            newInvoice.setStartDate(DateUtils.latestDate(date.withDayOfMonth(1), contract.getStartDate()));
-            newInvoice.setEndDate(date);
-            newInvoice.setContract(contract);
-            calculateExpense(newInvoice);
-            invoiceRepository.save(newInvoice);
-        }
+        return invoices.stream()
+                .map(invoiceMapper::toInvoiceDetailRes).toList();
     }
-
-
 
     @Transactional
-    public void createCheckoutInvoice(int contractId, CreateCheckoutInvoiceReq request) {
-        Contract contract = contractRepository.findById(contractId)
-                .orElseThrow(() -> new AppException(ErrorCode.CONTRACT_NOT_EXISTED));
-        switch (contract.getStatus()) {
-            case PENDING_CHECKOUT: {
-                break;
-            }
-            case EXPIRED:
-                throw new AppException(ErrorCode.INVOICE_EXISTED);
-            case ACTIVE:
-            case SOON_EXPIRED:
-                throw new AppException(ErrorCode.CONTRACT_NOT_EXPIRED);
-            default: {
-                throw new AppException(ErrorCode.CONTRACT_NO_STATUS);
-            }
-        }
+    public void createInvoice(int contractId, InvoiceReq request) {
+        var manager = getManager();
+        var contract = manager.getContract(contractId);
 
-        House house = contract.getRoom().getHouse();
-        if (house.isHavingElecIndex()) contract.setEndElecNumber(request.getEndElecNumber());
-        if (house.isHavingWaterIndex()) contract.setEndWaterNumber(request.getEndWaterNumber());
-
-        Invoice newInvoice = new Invoice();
-        newInvoice.setCheckout(true);
-        newInvoice.setCreateDate(LocalDate.now());
-        newInvoice.setName("Hóa đơn trả phòng ");
-        newInvoice.setStartDate(contract.getEndDate().withDayOfMonth(1));
-        newInvoice.setEndDate(contract.getEndDate());
-        newInvoice.setContract(contract);
-
-        calculateExpense(newInvoice);
-        invoiceRepository.save(newInvoice);
+        contract.createInvoice(request.getMonth());
     }
 
-    void calculateExpense(Invoice invoice) {
-        BaseRentCalculator.calculate(invoice);
-        OtherFeeCalculator.calculate(invoice);
-        ElecCalculator.calculate(elecWaterRecordService, invoice);
-        WaterCalculator.calculate(elecWaterRecordService, invoice);
-    }
-
-    public List<InvoiceRes> getList(int houseId) {
-        return invoiceRepository.findAllByHouseId(houseId).stream()
-                .map(invoiceMapper::toInvoiceRes)
+    @Transactional
+    public void createInvoices(InvoiceOfHouseReq request) {
+        var manager = getManager();
+        var house = manager.getHouse(request.getHouseId());
+        var month = request.getMonth();
+        house.getRooms().stream()
+                .filter(room -> room.getContracts() != null)
+                .flatMap(room -> room.getContracts().stream())
+                .filter(contract -> contract.contain(month)) //
+                .filter(contract -> !contract.isHavingInvoice(month))
+                .map(contract -> {
+                    try {
+                        return contract.createInvoice(month);
+                    } catch (AppException e) {
+                        System.out.println(contract.getRoom().getName() + " " + e.getErrorCode().getMessage());
+                        return null;
+                    }
+                })
+                .filter(invoice -> invoice != null)
                 .toList();
     }
 
-    public List<InvoiceDetailRes> getList() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        int id = Integer.parseInt(authentication.getName());
-
-        return invoiceRepository.findByContractRoomHouseManagerId(id).stream().map(
-                invoiceMapper::toInvoiceDetailRes).toList();
+    @Transactional
+    public void createCheckoutInvoice(int contractId, CheckoutInvoiceReq request) {
+        var manager = getManager();
+        var contract = manager.getContract(contractId);
+        System.out.println(1);
+        House house = contract.getRoom().getHouse();
+        if (house.isHavingElecIndex()) contract.setEndElecNumber(request.getEndElecNumber());
+        if (house.isHavingWaterIndex()) contract.setEndWaterNumber(request.getEndWaterNumber());
+        contract.createCheckoutInvoice();
     }
 
     @Transactional
@@ -125,6 +94,17 @@ public class InvoiceService {
 
     @Transactional
     public void delete(int id) {
+        var manager = getManager();
+        var invoice = manager.getInvoice(id);
+        var contract = invoice.getContract();
+        contract.deleteInvoice(invoice);
         invoiceRepository.deleteById(id);
     }
+
+    Manager getManager() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        int managerId = Integer.parseInt(authentication.getName());
+        return managerRepository.findById(managerId).orElseThrow();
+    }
+
 }

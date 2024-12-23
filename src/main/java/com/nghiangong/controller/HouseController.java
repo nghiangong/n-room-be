@@ -3,13 +3,13 @@ package com.nghiangong.controller;
 import java.util.List;
 
 import com.nghiangong.dto.request.house.HouseReq;
-import com.nghiangong.dto.request.room.RoomReq;
 import com.nghiangong.dto.response.*;
 import com.nghiangong.dto.response.house.HouseDetailRes;
 import com.nghiangong.dto.response.house.HouseNameRes;
 import com.nghiangong.dto.response.house.HouseStatisticRes;
 import com.nghiangong.dto.response.room.RoomNameRes;
 import com.nghiangong.dto.response.room.RoomRes;
+import com.nghiangong.repository.HouseRepository;
 import com.nghiangong.service.RoomService;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 @Slf4j
 public class HouseController {
+    private final HouseRepository houseRepository;
     HouseService houseService;
     RoomService roomService;
 
@@ -37,9 +38,9 @@ public class HouseController {
     }
 
     @PostMapping
-    ApiResponse<HouseDetailRes> createHouse(@RequestBody HouseReq request) {
-        return ApiResponse.<HouseDetailRes>builder()
-                .result(houseService.createHouse(request))
+    ApiResponse createHouse(@RequestBody HouseReq request) {
+        houseService.createHouse(request);
+        return ApiResponse.builder()
                 .build();
     }
 
@@ -51,9 +52,9 @@ public class HouseController {
     }
 
     @PutMapping("/{id}")
-    ApiResponse<HouseDetailRes> updateHouse(@PathVariable int id, @RequestBody HouseReq request) {
-        return ApiResponse.<HouseDetailRes>builder()
-                .result(houseService.updateHouse(id, request))
+    ApiResponse updateHouse(@PathVariable int id, @RequestBody HouseReq request) {
+        houseService.updateHouse(id, request);
+        return ApiResponse.builder()
                 .build();
     }
 
@@ -76,6 +77,18 @@ public class HouseController {
         return ApiResponse.<List<RoomNameRes>>builder()
                 .result(roomService.getNameList(id))
                 .build();
+    }
+
+    @PutMapping("/{id}/active")
+    ApiResponse active(@PathVariable int id) {
+        houseService.active(id);
+        return ApiResponse.builder().build();
+    }
+
+    @PutMapping("/{id}/inactive")
+    ApiResponse inactive(@PathVariable int id) {
+        houseService.inactive(id);
+        return ApiResponse.builder().build();
     }
 
     @DeleteMapping("/{id}")

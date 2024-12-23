@@ -2,12 +2,12 @@ package com.nghiangong.service;
 
 import com.nghiangong.dto.response.user.TenantDetailRes;
 import com.nghiangong.dto.response.user.UserRes;
-import com.nghiangong.entity.House;
-import com.nghiangong.entity.room.Contract;
-import com.nghiangong.entity.room.Room;
+import com.nghiangong.entity.user.Manager;
 import com.nghiangong.exception.AppException;
 import com.nghiangong.exception.ErrorCode;
 import com.nghiangong.model.PasswordEncoderC;
+import com.nghiangong.repository.HouseRepository;
+import com.nghiangong.repository.ManagerRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,12 +30,10 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class TenantService {
+    private final ManagerRepository managerRepository;
+    private final HouseRepository houseRepository;
     TenantRepository tenantRepository;
     TenantMapper tenantMapper;
-
-    public void encode(Tenant tenant) {
-        tenant.setPassword(PasswordEncoderC.encode(tenant.getPersonalIdNumber()));
-    }
 
     //    @PreAuthorize("hasRole('PRE_TENANT')")
     public UserRes createMember(Tenant tenant) {
@@ -57,17 +55,14 @@ public class TenantService {
 
     @PreAuthorize("hasRole('MANAGER')")
     public List<TenantDetailRes> getTenantsByManager() {
+        var manager = getManager();
+
+        return manager.getTenants().stream().map(tenant -> tenantMapper.toTenantDetailRes(tenant)).toList();
+    }
+
+    Manager getManager() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         int managerId = Integer.parseInt(authentication.getName());
-
-        var objects = tenantRepository.findTenantsByManagerId(managerId);
-
-        return objects.stream().map(obj -> {
-            Tenant tenant = (Tenant) obj[0];
-            Contract contract = (Contract) obj[1];
-            Room room = (Room) obj[2];
-            House house = (House) obj[3];
-            return tenantMapper.toTenantDetailRes(tenant, contract, room, house);
-        }).toList();
+        return managerRepository.findById(managerId).orElseThrow();
     }
 }

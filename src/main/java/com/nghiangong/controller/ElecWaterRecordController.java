@@ -1,5 +1,6 @@
 package com.nghiangong.controller;
 
+import com.nghiangong.dto.request.room.RecordReq;
 import com.nghiangong.dto.response.ApiResponse;
 import com.nghiangong.dto.response.elecwater.ElecwaterRecordRes;
 import com.nghiangong.service.ElecWaterRecordService;
@@ -24,15 +25,15 @@ public class ElecWaterRecordController {
                 .build();
     }
 
-    @PutMapping("/elecRecords/{id}")
-    ApiResponse editElecRecord(@PathVariable int id, @RequestParam int value) {
-        elecWaterRecordService.editElecRecord(id, value);
+    @PutMapping("/elecRecords/{roomId}")
+    ApiResponse addElecRecord(@PathVariable int roomId, @RequestBody RecordReq request) {
+        elecWaterRecordService.addElecRecord(roomId, request);
         return ApiResponse.builder().build();
     }
 
-    @PutMapping("/waterRecords/{id}")
-    ApiResponse editWaterRecord(@PathVariable int id, @RequestParam int value) {
-        elecWaterRecordService.editWaterRecord(id, value);
+    @PutMapping("/waterRecords/{roomId}")
+    ApiResponse addWaterRecord(@PathVariable int roomId, @RequestBody RecordReq request) {
+        elecWaterRecordService.addWaterRecord(roomId, request);
         return ApiResponse.builder().build();
     }
 }

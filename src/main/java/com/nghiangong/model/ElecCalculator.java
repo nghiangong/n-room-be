@@ -4,18 +4,11 @@ import com.nghiangong.entity.room.Invoice;
 import com.nghiangong.entity.room.InvoiceItem;
 import com.nghiangong.exception.AppException;
 import com.nghiangong.exception.ErrorCode;
-import com.nghiangong.service.ElecWaterRecordService;
-
-import java.util.List;
 
 public class ElecCalculator {
-    public static void calculate(ElecWaterRecordService service, List<Invoice> invoices) {
-        invoices.forEach(invoice -> calculate(service, invoice));
-    }
-
-    public static void calculate(ElecWaterRecordService service, Invoice invoice) {
+    public static void calculate(Invoice invoice) {
         if (invoice.getContract().getRoom().getHouse().isHavingElecIndex())
-            calculateWithIndex(service, invoice);
+            calculateWithIndex(invoice);
         else
             calculateWithoutIndex(invoice);
     }
@@ -41,7 +34,7 @@ public class ElecCalculator {
         invoice.addInvoiceItem(newInvoiceItem);
     }
 
-    static void calculateWithIndex(ElecWaterRecordService service, Invoice invoice) {
+    static void calculateWithIndex(Invoice invoice) {
         var contract = invoice.getContract();
         var room = contract.getRoom();
         var house = room.getHouse();
@@ -54,14 +47,14 @@ public class ElecCalculator {
                 throw new AppException(ErrorCode.START_ELEC_NUMBER_NOT_VALID);
             oldValue = contract.getStartElecNumber();
         } else
-            oldValue = service.getElecRecord(room.getId(), invoice.getStartDate());
+            oldValue = room.getElecIndex(invoice.getStartDate().minusMonths(1));
 
         if (invoice.getEndDate() == contract.getEndDate()) {
             if (contract.getEndElecNumber() == null)
                 throw new AppException(ErrorCode.END_ELEC_NUMBER_NOT_VALID);
             newValue = contract.getEndElecNumber();
         } else
-            newValue = service.getElecRecord(room.getId(), invoice.getStartDate());
+            newValue = room.getElecIndex(invoice.getStartDate());
 
         int quantity = newValue - oldValue;
         if (quantity < 0) throw new AppException(ErrorCode.ELEC_NUMBER_NOT_VALID);

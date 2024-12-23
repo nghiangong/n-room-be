@@ -27,7 +27,7 @@ public class ContractDetailRes {
     Integer endElecNumber;
     Integer endWaterNumber;
     String status;
-
+    String paymentStatus;
 
     RoomRes room;
     UserRes repTenant;

@@ -40,18 +40,13 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 @PreAuthorize("hasRole('MANAGER')")
 public class HouseService {
-    OtherFeeRepository otherFeeRepository;
-    RoomRepository roomRepository;
     HouseRepository houseRepository;
     HouseMapper houseMapper;
     ManagerRepository managerRepository;
-    RoomMapper roomMapper;
 
     public List<HouseStatisticRes> getList() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        int id = Integer.parseInt(authentication.getName());
-
-        return houseRepository.findByManagerId(id).stream()
+        var manager = getManager();
+        return manager.getHouses().stream()
                 .map((house) -> {
                             var houseRes = houseMapper.toHouseStatisticRes(house);
 
@@ -78,44 +73,70 @@ public class HouseService {
                 .toList();
     }
 
+    @Transactional
     public HouseDetailRes getHouse(int id) {
-        //        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        //        int id = Integer.parseInt(authentication.getName());
-        House house = houseRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.HOUSE_NOT_EXISTED));
-        return houseMapper.toHouseDetailRes(house);
+        var manager = getManager();
+        return houseMapper.toHouseDetailRes(manager.getHouse(id));
     }
 
-    public HouseDetailRes createHouse(HouseReq request) {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        int id = Integer.parseInt(authentication.getName());
-        Manager manager =
-                managerRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_EXISTED));
+    @Transactional
+    public void createHouse(HouseReq request) {
+        var manager = getManager();
+
         House newHouse = houseMapper.toHouse(request);
-        newHouse.setManager(manager);
-        newHouse.getOtherFees().forEach(otherFee ->
-                otherFee.setHouse(newHouse));
-        houseRepository.save(newHouse);
-        return houseMapper.toHouseDetailRes(houseRepository.save(newHouse));
+        manager.createHouse(newHouse);
+        if (newHouse.getOtherFees() != null)
+            newHouse.getOtherFees().forEach(otherFee ->
+                    otherFee.setHouse(newHouse));
     }
 
-    public HouseDetailRes updateHouse(int id, HouseReq request) {
-        House house = houseRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.HOUSE_NOT_EXISTED));
+    @Transactional
+    public void updateHouse(int id, HouseReq request) {
+        var manager = getManager();
+
+        var house = manager.getHouse(id);
         houseMapper.updateHouse(house, request);
         house.getOtherFees().forEach(otherFee ->
                 otherFee.setHouse(house));
-        house.setStatus(HouseStatus.ACTIVE);
-        return houseMapper.toHouseDetailRes(houseRepository.save(house));
+        houseRepository.save(house);
     }
 
+    @Transactional
     public List<HouseNameRes> getNameList() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        int id = Integer.parseInt(authentication.getName());
+        var manager = getManager();
 
-        return houseRepository.findByManagerId(id).stream().map(houseMapper::toHouseNameRes).toList();
+        return manager.getHouses().stream().map(houseMapper::toHouseNameRes).toList();
+    }
+
+    @Transactional
+    public void active(int id) {
+        var manager = getManager();
+        var house = manager.getHouse(id);
+        house.setActive(true);
+    }
+
+    @Transactional
+    public void inactive(int id) {
+        var manager = getManager();
+        var house = manager.getHouse(id);
+        for (Room room : house.getRooms())
+            if (room.getStatus() == RoomStatus.OCCUPIED ||
+                room.getStatus() == RoomStatus.SOON_AVAILABLE)
+                throw new AppException(ErrorCode.HOUSE_HAVING_OCCUPIED_ROOM);
+        house.setActive(false);
     }
 
     @Transactional
     public void delete(int id) {
+        var manager = getManager();
+        var house = manager.getHouse(id);
+        manager.deleteHouse(house);
         houseRepository.deleteById(id);
+    }
+
+    Manager getManager() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        int managerId = Integer.parseInt(authentication.getName());
+        return managerRepository.findById(managerId).orElseThrow();
     }
 }

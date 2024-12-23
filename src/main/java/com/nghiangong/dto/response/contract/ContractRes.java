@@ -20,4 +20,5 @@ public class ContractRes {
     Integer numberOfBicycle;
     Integer numberOfMotorbike;
     String status;
+    String paymentStatus;
 }

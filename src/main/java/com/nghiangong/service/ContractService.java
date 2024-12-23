@@ -1,11 +1,15 @@
 package com.nghiangong.service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import com.nghiangong.constant.Role;
 import com.nghiangong.dto.request.contract.ContractReq;
+import com.nghiangong.dto.request.contract.StopContractReq;
 import com.nghiangong.dto.response.contract.ContractDetailRes;
 import com.nghiangong.dto.response.contract.ContractRes;
+import com.nghiangong.entity.user.Manager;
+import com.nghiangong.repository.ManagerRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,16 +33,33 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @Slf4j
 public class ContractService {
+    private final ManagerRepository managerRepository;
     ContractRepository contractRepository;
     ContractMapper contractMapper;
     RoomRepository roomRepository;
 
     @Transactional
+    public List<ContractDetailRes> getList() {
+        var manager = getManager();
+        return manager.getContracts().stream()
+                .map(contractMapper::toContractDetailRes).toList();
+    }
+
+    @Transactional
+    public ContractRes getContract(int id) {
+        var manager = getManager();
+        var contract = manager.getContract(id);
+
+        return contractMapper.toContractRes(contract);
+    }
+
+    @Transactional
     public void createContract(ContractReq request) {
-        Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
+        var manager = getManager();
+        var room = manager.getRoom(request.getRoomId());
+
         Contract newContract = contractMapper.toContract(request);
-        newContract.setRoom(room);
+        room.createContract(newContract);
 
         Tenant newTenant = newContract.getRepTenant();
         newTenant.setRole(Role.REP_TENANT);
@@ -46,42 +67,34 @@ public class ContractService {
 
     @Transactional
     public void updateContract(int id, ContractReq request) {
-        Contract contract = contractRepository.findById(id).orElseThrow();
+        var manager = getManager();
+        var room = manager.getRoom(request.getRoomId());
+        var contract = manager.getContract(id);
+
         contractMapper.update(contract, request);
-        Room room = roomRepository.findById(request.getRoomId())
-                .orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_EXISTED));
-        contract.setRoom(room);
+        room.updateContract(contract);
     }
 
-    public ContractRes getContract(int contractId) {
-        Contract contract = contractRepository
-                .findById(contractId)
-                .orElseThrow(() -> new AppException(ErrorCode.UNCATEGORIZED_EXCEPTION));
-        return contractMapper.toContractRes(contract);
-    }
+    @Transactional
+    public void stopContract(int id, StopContractReq request) {
+        var manager = getManager();
+        var contract = manager.getContract(id);
 
-    public List<ContractRes> getListByRoomId(int roomId) {
-        return contractRepository.findByRoomId(roomId).stream()
-                .map(contractMapper::toContractRes)
-                .toList();
-    }
+        contract.setEndDate(request.getEndDate());
 
-
-    public List<ContractDetailRes> getList() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        int id = Integer.parseInt(authentication.getName());
-
-        return contractRepository.findByRoomHouseManagerId(id).stream().map(
-                contractMapper::toContractDetailRes).toList();
-
+        contract.getRoom().updateContract(contract);
     }
 
     @Transactional
     public void delete(int id) {
         var contract = contractRepository.findById(id).orElse(null);
-        if (contract == null) return;
-        if (contract.getInvoices().size() > 0)
-            throw new AppException(ErrorCode.NOT_DELETE_CONTRACT);
         contractRepository.delete(contract);
     }
+
+    Manager getManager() {
+        var authentication = SecurityContextHolder.getContext().getAuthentication();
+        int managerId = Integer.parseInt(authentication.getName());
+        return managerRepository.findById(managerId).orElseThrow();
+    }
+
 }

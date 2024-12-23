@@ -1,21 +1,14 @@
 package com.nghiangong.model;
 
-import java.util.List;
-
 import com.nghiangong.entity.room.Invoice;
 import com.nghiangong.entity.room.InvoiceItem;
 import com.nghiangong.exception.AppException;
 import com.nghiangong.exception.ErrorCode;
-import com.nghiangong.service.ElecWaterRecordService;
 
 public class WaterCalculator {
-    public static void calculate(ElecWaterRecordService service, List<Invoice> invoices) {
-        invoices.forEach(invoice -> calculate(service, invoice));
-    }
-
-    public static void calculate(ElecWaterRecordService service, Invoice invoice) {
+    public static void calculate(Invoice invoice) {
         if (invoice.getContract().getRoom().getHouse().isHavingWaterIndex())
-            calculateWithIndex(service, invoice);
+            calculateWithIndex(invoice);
         else
             calculateWithoutIndex(invoice);
     }
@@ -41,7 +34,7 @@ public class WaterCalculator {
         invoice.addInvoiceItem(newInvoiceItem);
     }
 
-    static void calculateWithIndex(ElecWaterRecordService service, Invoice invoice) {
+    static void calculateWithIndex(Invoice invoice) {
         var contract = invoice.getContract();
         var room = contract.getRoom();
         var house = room.getHouse();
@@ -54,14 +47,14 @@ public class WaterCalculator {
                 throw new AppException(ErrorCode.START_WATER_NUMBER_NOT_VALID);
             oldValue = contract.getStartWaterNumber();
         } else
-            oldValue = service.getWaterRecord(room.getId(), invoice.getStartDate());
+            oldValue = room.getWaterIndex(invoice.getStartDate().minusMonths(1));
 
         if (invoice.getEndDate() == contract.getEndDate()) {
             if (contract.getEndWaterNumber() == null)
                 throw new AppException(ErrorCode.END_WATER_NUMBER_NOT_VALID);
             newValue = contract.getEndWaterNumber();
         } else
-            newValue = service.getWaterRecord(room.getId(), invoice.getStartDate());
+            newValue = room.getWaterIndex(invoice.getStartDate());
 
         int quantity = newValue - oldValue;
         if (quantity < 0) throw new AppException(ErrorCode.WATER_NUMBER_NOT_VALID);

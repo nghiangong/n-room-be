@@ -22,11 +22,7 @@ public interface TenantMapper {
     Tenant toTenant(TenantReq request);
     void updateTenant(@MappingTarget Tenant tenant, TenantReq request);
 
-    @Mapping(source = "tenant.id", target = "id")
-    @Mapping(source = "contract", target = "contract")
-    @Mapping(source = "room", target = "room")
-    @Mapping(source = "house", target = "house")
-    TenantDetailRes toTenantDetailRes(Tenant tenant, Contract contract, Room room, House house);
-
-
+    @Mapping(target = "room", source = "contract.room")
+    @Mapping(target = "house", source = "contract.room.house")
+    TenantDetailRes toTenantDetailRes(Tenant tenant);
 }

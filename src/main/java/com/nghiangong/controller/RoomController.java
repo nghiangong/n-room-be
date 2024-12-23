@@ -30,13 +30,6 @@ public class RoomController {
                 .build();
     }
 
-//    @GetMapping
-//    ApiResponse<List<RoomResponse>> getList(@RequestParam int houseId) {
-//        return ApiResponse.<List<RoomResponse>>builder()
-//                .result(roomService.getList(houseId))
-//                .build();
-//    }
-
     @GetMapping("/{id}")
     ApiResponse<RoomDetailRes> getRoom(@PathVariable int id) {
         return ApiResponse.<RoomDetailRes>builder()
@@ -56,6 +49,18 @@ public class RoomController {
         roomService.createRoom(request);
         return ApiResponse.builder()
                 .build();
+    }
+
+    @PutMapping("/{id}/active")
+    ApiResponse active(@PathVariable int id) {
+        roomService.active(id);
+        return ApiResponse.builder().build();
+    }
+
+    @PutMapping("/{id}/inactive")
+    ApiResponse inactive(@PathVariable int id) {
+        roomService.inactive(id);
+        return ApiResponse.builder().build();
     }
 
     @DeleteMapping("/{id}")

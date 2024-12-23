@@ -27,6 +27,8 @@ public interface RoomMapper {
     @Mapping(source = "currentContract.repTenant", target = "repTenant")
     RoomDetailRes toRoomDetailRes(Room room);
 
+    @Mapping(target = "elecRecords", ignore = true)
+    @Mapping(target = "waterRecords", ignore = true)
     RoomDetailRes2 toRoomDetailDetailRes2(Room room);
 
     RoomNameRes toRoomNameRes(Room room);

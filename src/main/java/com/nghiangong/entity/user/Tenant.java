@@ -1,7 +1,9 @@
 package com.nghiangong.entity.user;
 
-import com.nghiangong.constant.Role;
-import com.nghiangong.model.PasswordEncoderC;
+import com.nghiangong.entity.room.Contract;
+import com.nghiangong.entity.room.Invoice;
+import com.nghiangong.entity.room.Room;
+import com.nghiangong.listener.TenantListener;
 import jakarta.persistence.*;
 
 import lombok.AccessLevel;
@@ -19,23 +21,18 @@ import java.util.List;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Entity
+@EntityListeners(TenantListener.class)
 public class Tenant extends User {
     @ManyToOne
     @JoinColumn(name = "rep_tenant_id")
     Tenant repTenant;
 
-    @OneToMany(mappedBy = "repTenant", cascade = CascadeType.ALL)
+    @Transient
     List<Tenant> members;
 
-    @PrePersist
-    public void prePersist() {
-        this.setPassword(PasswordEncoderC.encode("1"));
-        if (this.getRole() == Role.REP_TENANT) this.setRepTenant(this);
-    }
+    @Transient
+    Contract contract;
 
-    @PostPersist
-    public void afterInsert() {
-        this.setUsername("tenant_" + this.getId());
-        if (this.getRole() == Role.REP_TENANT) this.setRepTenant(this);
-    }
+    @Transient
+    Room rentingRoom;
 }

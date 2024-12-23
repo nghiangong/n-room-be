@@ -36,18 +36,17 @@ public class RepTenantApiService {
     @Transactional
     public void createMember(TenantReq request) {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
-        Integer repTenantId = Integer.valueOf(authentication.getName());
+        Integer tenantId = Integer.valueOf(authentication.getName());
+        Tenant tenant = tenantRepository.findById(tenantId).orElseThrow();
 
-        Room room = roomRepository.findRentingByTenantId(repTenantId)
-                .orElseThrow(() -> new AppException(ErrorCode.TENANT_RENTING_NO_ROOM));
-        var currentContract = room.getCurrentContract();
-        var memberCount = tenantRepository.countMembersByRepTenantId(repTenantId);
-        if (currentContract.getNumberOfPeople() <= memberCount)
+        var memberCount = tenant.getMembers().size();
+        var contract = tenant.getContract();
+        if (contract.getNumberOfPeople() <= memberCount)
             throw new AppException(ErrorCode.ROOM_ENOUGH_MEMBER);
 
         Tenant newTenant = tenantMapper.toTenant(request);
         newTenant.setRole(Role.TENANT);
-        newTenant.setRepTenant(currentContract.getRepTenant());
+        newTenant.setRepTenant(contract.getRepTenant());
         try {
             tenantRepository.save(newTenant);
         } catch (DataIntegrityViolationException exception) {

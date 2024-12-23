@@ -17,12 +17,17 @@ public enum ErrorCode {
     USER_NOT_EXISTED(15, "User not existed", HttpStatus.NOT_FOUND),
     UNAUTHENTICATED(16, "Unauthenticated", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(17, "You do not have permission", HttpStatus.FORBIDDEN),
+
     HOUSE_NOT_EXISTED(18, "House not existed", HttpStatus.BAD_REQUEST),
+    HOUSE_HAVING_OCCUPIED_ROOM(19, "Tòa nhà có phòng đang thuê", HttpStatus.BAD_REQUEST),
+    NOT_DELETE_HOUSE(20, "Không thể xóa. Tòa nhà đang có liên quan đến nhiều phòng", HttpStatus.BAD_REQUEST),
+    HOUSE_INACTIVE(21, "Tòa nhà đang ngưng cho thuê", HttpStatus.BAD_REQUEST),
 
     ROOM_HAVING_CONTRACT(30, "Phòng này đang có hợp đồng.", HttpStatus.BAD_REQUEST),
     ROOM_ENOUGH_MEMBER(31, "Phòng đã có đủ người", HttpStatus.BAD_REQUEST),
-    ROOM_INACTIVE(32, "Phòng đã ngưng hoạt động", HttpStatus.BAD_REQUEST),
+    ROOM_INACTIVE(32, "Phòng đang ngưng cho thuê", HttpStatus.BAD_REQUEST),
     ROOM_NOT_EXISTED(33, "Phòng không tồn tại", HttpStatus.BAD_REQUEST),
+    NOT_DELETE_ROOM(34, "Không thể xóa. Phòng đang có liên quan đến nhiều hợp đồng", HttpStatus.BAD_REQUEST),
 
     ELEC_NUMBER_NOT_ENTERED(40, "Chưa nhập số điện", HttpStatus.BAD_REQUEST),
     WATER_NUMBER_NOT_ENTERED(41, "Chưa nhập số nước", HttpStatus.BAD_REQUEST),
@@ -39,12 +44,19 @@ public enum ErrorCode {
     CONTRACT_NO_STATUS(63, "Hợp đồng không có trạng thái", HttpStatus.INTERNAL_SERVER_ERROR),
     EXPIRED_CONTRACT_NOT_CHANGE_END_DATE(64, "Hợp đồng đã kết thúc. Không thể thay đổi ngày kết thúc.", HttpStatus.BAD_REQUEST),
     NOT_DELETE_CONTRACT(65, "Không thể xóa. Hợp đồng đang có liên quan đến nhiều hóa đơn.", HttpStatus.BAD_REQUEST),
+    CONTRACT_PERIOD_INTERSECTING(66, "Thời gian của hợp đồng giao với hợp đồng khác", HttpStatus.BAD_REQUEST),
+    CONTRACT_START_DATE_LESS_THAN_END_DATE(67, "Ngày bắt đầu của hợp đồng phải sớm hơn ngày kết thúc", HttpStatus.BAD_REQUEST),
+    CONTRACT_NOT_ENTER_START_ELEC_RECORD(68, "Chưa nhập số điện đầu", HttpStatus.BAD_REQUEST),
+    CONTRACT_NOT_ENTER_START_WATER_RECORD(69, "Chưa nhập số nước đầu", HttpStatus.BAD_REQUEST),
+    CONTRACT_NOT_CONTAIN_MONTH(90, "Hợp đồng không bao gồm tháng này", HttpStatus.BAD_REQUEST),
 
     INVOICE_NOT_EXISTED(70, "Hóa đơn không tồn tại", HttpStatus.BAD_REQUEST),
     INVOICE_OF_MONTH_EXISTED(71, "Hóa đơn tháng đã tồn tại", HttpStatus.BAD_REQUEST),
     INVOICE_EXISTED(72, "Hóa đơn đã tồn tại", HttpStatus.BAD_REQUEST),
+    NOT_DELETE_INVOICE(73, "Không thể xóa. Hóa đơn đã thanh toán", HttpStatus.BAD_REQUEST),
 
     TENANT_RENTING_NO_ROOM(80, "Không có phòng nào được đang thuê", HttpStatus.BAD_REQUEST),
+    TENANT_NOT_EXIST(81, "Khách thuê không tồn tại", HttpStatus.BAD_REQUEST),
     ;
 
     private final int code;

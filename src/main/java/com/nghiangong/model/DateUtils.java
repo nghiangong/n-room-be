@@ -4,8 +4,12 @@ import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 
 public class DateUtils {
-    public static LocalDate endOfMonth(LocalDate date) {
-        return date.with(TemporalAdjusters.lastDayOfMonth());
+    public static LocalDate startOfMonth(LocalDate month) {
+        return month.withDayOfMonth(1);
+    }
+
+    public static LocalDate endOfMonth(LocalDate month) {
+        return month.with(TemporalAdjusters.lastDayOfMonth());
     }
 
     public static LocalDate endOfLastMonth(LocalDate date) {
@@ -17,27 +21,8 @@ public class DateUtils {
         return date.equals(endOfLastMonth);
     }
 
-    public static LocalDate paymentCycle(LocalDate startDate) {
-        LocalDate today = LocalDate.now();
-
-        LocalDate nextPaymentCycle = startDate;
-        while (nextPaymentCycle.isBefore(today) || nextPaymentCycle.isEqual(today)) {
-            nextPaymentCycle = nextPaymentCycle.plusMonths(1);
-        }
-        nextPaymentCycle = nextPaymentCycle.minusDays(1);
-        return nextPaymentCycle;
-    }
-
-    public static LocalDate nextPaymentCycle(LocalDate startDate) {
-        LocalDate today = LocalDate.now();
-
-        LocalDate nextPaymentCycle = startDate;
-        while (nextPaymentCycle.isBefore(today) || nextPaymentCycle.isEqual(today)) {
-            nextPaymentCycle = nextPaymentCycle.plusMonths(1);
-        }
-        nextPaymentCycle = nextPaymentCycle.plusMonths(1);
-        nextPaymentCycle = nextPaymentCycle.minusDays(1);
-        return nextPaymentCycle;
+    public static boolean isSameMonth(LocalDate date1, LocalDate date2) {
+        return date1.getYear() == date2.getYear() && date1.getMonth() == date2.getMonth();
     }
 
     public static boolean remainingDateLessAMonth(LocalDate endDate) {
@@ -47,5 +32,11 @@ public class DateUtils {
 
     public static LocalDate latestDate(LocalDate date1, LocalDate date2) {
         return date1.isAfter(date2) ? date1 : date2;
+    }
+
+    public static LocalDate earliestDate(LocalDate date1, LocalDate date2) {
+        if (date1 == null) return date2;
+        if (date2 == null) return date1;
+        return date1.isBefore(date2) ? date1 : date2;
     }
 }

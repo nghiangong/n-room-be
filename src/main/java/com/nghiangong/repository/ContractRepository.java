@@ -14,14 +14,14 @@ import com.nghiangong.entity.room.Contract;
 public interface ContractRepository extends JpaRepository<Contract, Integer> {
     List<Contract> findByRoomId(int roomId);
 
+    Contract findByRepTenant_Id(int repTenantId);
+
     @Query("""
             SELECT c FROM Contract c
             JOIN Tenant t ON c.repTenant.id = t.repTenant.id
             WHERE t.id = :tenantId
             """)
     List<Contract> findByTenantId(@Param("tenantId") int tenantId);
-
-    List<Contract> findByRoomHouseManagerId(int id);
 
     @Query("""
             SELECT c 
@@ -35,5 +35,4 @@ public interface ContractRepository extends JpaRepository<Contract, Integer> {
     )
     List<Contract> findByHouseIdWithoutInvoiceOfMonth(@Param("houseId") int houseId,
                                                       @Param("lastOfMonth") LocalDate lastOfMonth);
-
 }

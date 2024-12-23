@@ -3,6 +3,7 @@ package com.nghiangong.controller;
 import java.time.LocalDate;
 import java.util.List;
 
+import com.nghiangong.dto.request.invoice.InvoiceOfHouseReq;
 import com.nghiangong.dto.response.invoice.InvoiceDetailRes;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,20 +18,22 @@ import lombok.experimental.FieldDefaults;
 @RequestMapping("/invoices")
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequiredArgsConstructor
+
+
 public class InvoiceController {
     InvoiceService invoiceService;
-
-    @PostMapping
-    ApiResponse createMonthlyInvoices(@RequestParam int houseId, @RequestParam LocalDate date) {
-        invoiceService.createMonthlyInvoices(houseId, date);
-        return ApiResponse.builder().build();
-    }
 
     @GetMapping
     ApiResponse<List<InvoiceDetailRes>> getList() {
         return ApiResponse.<List<InvoiceDetailRes>>builder()
                 .result(invoiceService.getList())
                 .build();
+    }
+
+    @PostMapping("/house")
+    ApiResponse createInvoices(@RequestBody InvoiceOfHouseReq request) {
+        invoiceService.createInvoices(request);
+        return ApiResponse.builder().build();
     }
 
     @PutMapping("/{id}/paid")

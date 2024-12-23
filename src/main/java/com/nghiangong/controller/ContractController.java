@@ -1,7 +1,11 @@
 package com.nghiangong.controller;
 
 import com.nghiangong.dto.request.contract.ContractReq;
+import com.nghiangong.dto.request.contract.StopContractReq;
+import com.nghiangong.dto.request.invoice.CheckoutInvoiceReq;
+import com.nghiangong.dto.request.invoice.InvoiceReq;
 import com.nghiangong.dto.response.contract.ContractDetailRes;
+import com.nghiangong.service.InvoiceService;
 import org.springframework.web.bind.annotation.*;
 
 import com.nghiangong.dto.response.ApiResponse;
@@ -21,6 +25,7 @@ import java.util.List;
 @Slf4j
 public class ContractController {
     ContractService contractService;
+    InvoiceService invoiceService;
 
     @GetMapping
     ApiResponse<List<ContractDetailRes>> getList() {
@@ -28,13 +33,6 @@ public class ContractController {
                 .result(contractService.getList())
                 .build();
     }
-
-//    @GetMapping("/{contractId}")
-//    ApiResponse<ContractRes> getContact(@PathVariable int contractId) {
-//        return ApiResponse.<ContractRes>builder()
-//                .result(contractService.getContract(contractId))
-//                .build();
-//    }
 
     @PostMapping
     ApiResponse createContact(@RequestBody ContractReq request) {
@@ -46,21 +44,31 @@ public class ContractController {
     @PutMapping("/{id}")
     ApiResponse updateContract(@PathVariable int id, @RequestBody ContractReq request) {
         contractService.updateContract(id, request);
-        return ApiResponse.builder()
-                .build();
+        return ApiResponse.builder().build();
     }
 
-
-    //    @GetMapping
-    //    ApiResponse<List<ContractRes>> getContractsByTenant() {
-    //        return ApiResponse.<List<ContractRes>>builder()
-    //                .result(contractService.getListByTenant())
-    //                .build();
-    //    }
+    @PutMapping("/{id}/stop")
+    ApiResponse stopContract(@PathVariable int id, @RequestBody StopContractReq request) {
+        System.out.println(request.toString());
+        contractService.stopContract(id, request);
+        return ApiResponse.builder().build();
+    }
 
     @DeleteMapping("/{id}")
     ApiResponse delete(@PathVariable int id) {
         contractService.delete(id);
+        return ApiResponse.builder().build();
+    }
+
+    @PutMapping("/{id}/checkoutInvoice")
+    ApiResponse createCheckoutInvoice(@PathVariable int id, @RequestBody CheckoutInvoiceReq request) {
+        invoiceService.createCheckoutInvoice(id, request);
+        return ApiResponse.builder().build();
+    }
+
+    @PutMapping("/{id}/invoice")
+    ApiResponse createInvoice(@PathVariable int id, @RequestBody InvoiceReq request) {
+        invoiceService.createInvoice(id, request);
         return ApiResponse.builder().build();
     }
 }

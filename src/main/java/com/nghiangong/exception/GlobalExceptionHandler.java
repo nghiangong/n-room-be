@@ -7,6 +7,7 @@ import jakarta.validation.ConstraintViolation;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.transaction.TransactionSystemException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.nghiangong.dto.response.ApiResponse;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @ControllerAdvice
 @Slf4j
@@ -29,15 +31,28 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getStatusCode()).body(new ApiResponse(errorCode, message));
     }
 
-    @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception) {
-        log.error("Exception: ", exception);
-        return responseEntity(ErrorCode.UNCATEGORIZED_EXCEPTION);
+    @ExceptionHandler(TransactionSystemException.class)
+    public ResponseEntity<String> handleTransactionSystemException(TransactionSystemException ex) {
+        Throwable cause = ex.getCause();
+        while (cause != null) {
+            if (cause instanceof com.nghiangong.exception.AppException) {
+                AppException exception = (com.nghiangong.exception.AppException) cause;
+                return responseEntity(exception.getErrorCode());
+            }
+            cause = cause.getCause();
+        }
+        return ResponseEntity.status(500).body("Có lỗi trong giao dịch");
     }
 
     @ExceptionHandler(value = AppException.class)
     ResponseEntity<ApiResponse> handlingAppException(AppException exception) {
         return responseEntity(exception.getErrorCode(), exception.getMessage());
+    }
+
+    @ExceptionHandler(value = Exception.class)
+    ResponseEntity<ApiResponse> handlingRuntimeException(RuntimeException exception) {
+        log.error("Exception: ", exception);
+        return responseEntity(ErrorCode.UNCATEGORIZED_EXCEPTION);
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)

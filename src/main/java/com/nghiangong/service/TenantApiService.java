@@ -8,6 +8,8 @@ import com.nghiangong.dto.response.invoice.InvoiceRes;
 import com.nghiangong.dto.response.room.RoomDetailRes2;
 import com.nghiangong.dto.response.user.UserRes;
 import com.nghiangong.entity.room.Room;
+import com.nghiangong.entity.user.Manager;
+import com.nghiangong.entity.user.Tenant;
 import com.nghiangong.exception.AppException;
 import com.nghiangong.exception.ErrorCode;
 import com.nghiangong.mapper.*;
@@ -20,6 +22,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,8 +35,6 @@ public class TenantApiService {
     ContractRepository contractRepository;
     InvoiceRepository invoiceRepository;
     TenantRepository tenantRepository;
-    WaterRecordOfRoomRepository waterRecordOfRoomRepository;
-    ElecRecordOfRoomRepository elecRecordOfRoomRepository;
 
     RoomMapper roomMapper;
     ContractMapper contractMapper;
@@ -41,22 +42,23 @@ public class TenantApiService {
     TenantMapper tenantMapper;
     RecordMapper recordMapper;
 
+    @Transactional
     public RoomDetailRes2 getRoom() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         int tenantId = Integer.parseInt(authentication.getName());
+        Tenant tenant = tenantRepository.findById(tenantId).orElseThrow();
 
-        Room room = roomRepository.findRentingByTenantId(tenantId)
-                .orElseThrow(() -> new AppException(ErrorCode.TENANT_RENTING_NO_ROOM));
+        Room rentingRoom = tenant.getRentingRoom();
+        if (rentingRoom == null)
+            throw new AppException(ErrorCode.TENANT_RENTING_NO_ROOM);
 
-        Pageable pageable = PageRequest.of(0, 12);
-        var response = roomMapper.toRoomDetailDetailRes2(room);
-        var elecRecords = elecRecordOfRoomRepository.findByTenantId(tenantId, pageable);
-        var waterRecords = waterRecordOfRoomRepository.findByTenantId(tenantId, pageable);
-        response.setElecRecords(elecRecords.stream().map(recordMapper::toRecordRes).toList());
-        response.setWaterRecords(waterRecords.stream().map(recordMapper::toRecordRes).toList());
+        var response = roomMapper.toRoomDetailDetailRes2(rentingRoom);
+        response.setElecRecords(rentingRoom.getElecRecords().stream().map(recordMapper::toRecordRes).toList());
+        response.setWaterRecords(rentingRoom.getWaterRecords().stream().map(recordMapper::toRecordRes).toList());
         return response;
     }
 
+    @Transactional
     public List<ContractRes> getContracts() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         String tenantId = authentication.getName();
@@ -65,50 +67,39 @@ public class TenantApiService {
                 .toList();
     }
 
+    @Transactional
     public ContractDetailRes getContractDetailById(int contractId) {
         var contract = contractRepository.findById(contractId)
                 .orElseThrow(() -> new AppException(ErrorCode.CONTRACT_NOT_EXISTED));
         return contractMapper.toContractDetailRes(contract);
     }
 
+    @Transactional
     public List<InvoiceRes> getInvoices() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        String tenantId = authentication.getName();
-        return invoiceRepository.findByTenantId(Integer.parseInt(tenantId)).stream()
+        var tenant = getTenant();
+        var list = tenant.getContract().getInvoices().stream()
                 .map(invoiceMapper::toInvoiceRes)
                 .toList();
+        return list;
     }
 
+    @Transactional
     public InvoiceDetailRes getInvoiceDetailById(int invoiceId) {
         var invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new AppException(ErrorCode.INVOICE_NOT_EXISTED));
         return invoiceMapper.toInvoiceDetailRes(invoice);
     }
 
+    @Transactional
     public List<UserRes> getMembers() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        Integer tenantId = Integer.valueOf(authentication.getName());
+        var tenant = getTenant();
 
-        var tenants = tenantRepository.findMembersByTenantId(tenantId);
-        return tenants.stream().map(tenantMapper::toUserRes).toList();
+        return tenant.getMembers().stream().map(tenantMapper::toUserRes).toList();
     }
 
-    public List<RecordRes> getElecRecords() {
+    Tenant getTenant() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
-        Integer tenantId = Integer.valueOf(authentication.getName());
-
-        Pageable pageable = PageRequest.of(0, 12);
-        var records = elecRecordOfRoomRepository.findByTenantId(tenantId, pageable);
-        return records.stream().map(recordMapper::toRecordRes).toList();
+        int tenantId = Integer.parseInt(authentication.getName());
+        return tenantRepository.findById(tenantId).orElseThrow();
     }
-
-    public List<RecordRes> getWaterRecords() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        Integer tenantId = Integer.valueOf(authentication.getName());
-
-        Pageable pageable = PageRequest.of(0, 12);
-        var records = waterRecordOfRoomRepository.findByTenantId(tenantId, pageable);
-        return records.stream().map(recordMapper::toRecordRes).toList();
-    }
-
 }
