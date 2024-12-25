@@ -35,4 +35,14 @@ public class Tenant extends User {
 
     @Transient
     Room rentingRoom;
+
+    @Override
+    public void setEmail(String email) {
+        if (this.getEmail() != email)
+            changedEmail = true;
+        super.setEmail(email);
+    }
+
+    @Transient
+    private boolean changedEmail;
 }

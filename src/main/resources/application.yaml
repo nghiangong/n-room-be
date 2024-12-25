@@ -21,5 +21,5 @@ jwt:
   signerKey: "qIN32BSKRqe1Gmt3cKUSTj4Yg5fx3gz3arHam6/XcNM4agDHbdlB74OXjEPzvOHw"
   valid-duration: 864000 # in second
 
-
-
+brevo:
+  api-key: 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

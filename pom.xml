@@ -59,6 +59,17 @@
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
 		</dependency>
+<!--		<dependency>-->
+<!--			<groupId>org.springframework.boot</groupId>-->
+<!--			<artifactId>spring-boot-starter-mail</artifactId>-->
+<!--		</dependency>-->
+
+<!--		<dependency>-->
+<!--			<groupId>com.sendinblue</groupId>-->
+<!--			<artifactId>sendinblue-api-client</artifactId>-->
+<!--			<version>8.7.1</version> &lt;!&ndash; Phiên bản có thể thay đổi &ndash;&gt;-->
+<!--		</dependency>-->
+
 	</dependencies>
 
 	<build>
