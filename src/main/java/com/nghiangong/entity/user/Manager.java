@@ -60,15 +60,6 @@ public class Manager extends User {
                 .collect(Collectors.toList());
     }
 
-    public List<Tenant> getTenants() {
-
-
-        return getContracts().stream()
-                .filter(contract -> contract.getRepTenant().getMembers() != null)
-                .flatMap(contract -> contract.getRepTenant().getMembers().stream())
-                .collect(Collectors.toList());
-    }
-
     public House getHouse(int id) {
         return getHouses().stream().filter(house -> house.getId() == id).findFirst()
                 .orElseThrow(() -> new AppException(ErrorCode.HOUSE_NOT_EXISTED));
@@ -87,10 +78,5 @@ public class Manager extends User {
     public Invoice getInvoice(int id) {
         return getInvoices().stream().filter(invoice -> invoice.getId() == id).findFirst()
                 .orElseThrow(() -> new AppException(ErrorCode.INVOICE_NOT_EXISTED));
-    }
-
-    public Tenant getTenant(int id) {
-        return getTenants().stream().filter(tenant -> tenant.getId() == id).findFirst()
-                .orElseThrow(() -> new AppException(ErrorCode.TENANT_NOT_EXIST));
     }
 }

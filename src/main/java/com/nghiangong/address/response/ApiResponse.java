@@ -1,20 +1,19 @@
-package com.nghiangong.dto.response;
+package com.nghiangong.address.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserResponse {
-    int id;
-    String username;
-    String fullName;
-    String phoneNumber;
-    String role;
+public class ApiResponse<T> {
+    @Builder.Default
+    private int code = 10;
+
+    private String message;
+    private T result;
 }

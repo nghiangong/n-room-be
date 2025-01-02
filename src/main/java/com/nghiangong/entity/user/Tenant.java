@@ -1,7 +1,6 @@
 package com.nghiangong.entity.user;
 
 import com.nghiangong.entity.room.Contract;
-import com.nghiangong.entity.room.Invoice;
 import com.nghiangong.entity.room.Room;
 import com.nghiangong.listener.TenantListener;
 import jakarta.persistence.*;
@@ -27,22 +26,17 @@ public class Tenant extends User {
     @JoinColumn(name = "rep_tenant_id")
     Tenant repTenant;
 
-    @Transient
-    List<Tenant> members;
-
-    @Transient
-    Contract contract;
-
-    @Transient
-    Room rentingRoom;
-
     @Override
     public void setEmail(String email) {
-        if (this.getEmail() != email)
+        if (!this.getEmail().equals(email)) {
             changedEmail = true;
-        super.setEmail(email);
+            super.setEmail(email);
+        }
     }
 
     @Transient
-    private boolean changedEmail;
+    private Contract contract;
+
+    @Transient
+    private boolean changedEmail = false;
 }

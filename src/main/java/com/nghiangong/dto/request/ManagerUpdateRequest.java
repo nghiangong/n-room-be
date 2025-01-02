@@ -16,4 +16,7 @@ public class ManagerUpdateRequest {
 
     @Pattern(regexp = "^\\+?[0-9]{10,15}$", message = "INVALID_PHONE_FORMAT")
     String phoneNumber;
+
+    String email;
+    String personalIdNumber;
 }

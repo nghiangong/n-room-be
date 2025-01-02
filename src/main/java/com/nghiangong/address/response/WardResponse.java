@@ -1,4 +1,4 @@
-package com.nghiangong.dto.response;
+package com.nghiangong.address.response;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -10,8 +10,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class WaterInfoOfHouseResponse {
-    String waterChargeCalc;
-    int waterChargePerPerson;
-    int waterPricePerUnit;
+public class WardResponse {
+    String id;
+    String fullName;
 }

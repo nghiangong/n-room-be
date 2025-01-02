@@ -10,6 +10,7 @@ import com.nghiangong.dto.response.contract.ContractDetailRes;
 import com.nghiangong.dto.response.contract.ContractRes;
 import com.nghiangong.entity.user.Manager;
 import com.nghiangong.repository.ManagerRepository;
+import com.nghiangong.repository.TenantRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

@@ -14,7 +14,7 @@ import com.nghiangong.entity.room.Contract;
 public interface ContractRepository extends JpaRepository<Contract, Integer> {
     List<Contract> findByRoomId(int roomId);
 
-    Contract findByRepTenant_Id(int repTenantId);
+    Contract findByRepTenantId(int repTenantId);
 
     @Query("""
             SELECT c FROM Contract c

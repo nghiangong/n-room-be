@@ -13,18 +13,6 @@ import java.util.List;
 @Repository
 public interface TenantRepository extends JpaRepository<Tenant, Integer> {
 
-//    @Query("""
-//        SELECT t FROM Tenant t
-//        JOIN Tenant t2 ON t2.repTenant.id = t.repTenant.id
-//        WHERE t2.id = :tenantId
-//        """)
-//    List<Tenant> findMembersByTenantId(@Param("tenantId") int tenantId);
-
-    @Query("""
-        SELECT COUNT(t) FROM Tenant t 
-        WHERE t.repTenant.id = :repTenantId
-    """)
-    Integer countMembersByRepTenantId(@Param("repTenantId") int repTenantId);
 
     List<Tenant> findByRepTenantId(int id);
 }

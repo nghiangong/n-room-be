@@ -1,6 +1,4 @@
-package com.nghiangong.dto.response;
-
-import java.util.List;
+package com.nghiangong.address.response;
 
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -12,8 +10,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class ElecInfoOfHouseResponse {
-    String elecChargeCalc;
-    List<Integer> elecCostByPeopleCount;
-    int elecPricePerUnit;
+public class ProvinceResponse {
+    String id;
+    String fullName;
 }

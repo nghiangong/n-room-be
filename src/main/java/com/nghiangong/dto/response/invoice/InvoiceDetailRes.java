@@ -21,7 +21,7 @@ public class InvoiceDetailRes {
     LocalDate startDate;
     LocalDate endDate;
     LocalDate createDate;
-    int amount;
+    Integer amount;
     String status;
 
     ContractRes contract;

@@ -5,6 +5,7 @@ import com.nghiangong.dto.request.contract.StopContractReq;
 import com.nghiangong.dto.request.invoice.CheckoutInvoiceReq;
 import com.nghiangong.dto.request.invoice.InvoiceReq;
 import com.nghiangong.dto.response.contract.ContractDetailRes;
+import com.nghiangong.dto.response.invoice.InvoiceDetailRes;
 import com.nghiangong.service.InvoiceService;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,7 +50,6 @@ public class ContractController {
 
     @PutMapping("/{id}/stop")
     ApiResponse stopContract(@PathVariable int id, @RequestBody StopContractReq request) {
-        System.out.println(request.toString());
         contractService.stopContract(id, request);
         return ApiResponse.builder().build();
     }
@@ -61,14 +61,16 @@ public class ContractController {
     }
 
     @PutMapping("/{id}/checkoutInvoice")
-    ApiResponse createCheckoutInvoice(@PathVariable int id, @RequestBody CheckoutInvoiceReq request) {
-        invoiceService.createCheckoutInvoice(id, request);
-        return ApiResponse.builder().build();
+    ApiResponse<InvoiceDetailRes> createCheckoutInvoice(@PathVariable int id, @RequestBody CheckoutInvoiceReq request) {
+        return ApiResponse.<InvoiceDetailRes>builder()
+                .result(invoiceService.createCheckoutInvoice(id, request))
+                .build();
     }
 
     @PutMapping("/{id}/invoice")
-    ApiResponse createInvoice(@PathVariable int id, @RequestBody InvoiceReq request) {
-        invoiceService.createInvoice(id, request);
-        return ApiResponse.builder().build();
+    ApiResponse<InvoiceDetailRes> createInvoice(@PathVariable int id, @RequestBody InvoiceReq request) {
+        return ApiResponse.<InvoiceDetailRes>builder()
+                .result(invoiceService.createInvoice(id, request))
+                .build();
     }
 }

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import com.nghiangong.dto.request.invoice.InvoiceOfHouseReq;
+import com.nghiangong.dto.response.invoice.CreateInvoicesRes;
 import com.nghiangong.dto.response.invoice.InvoiceDetailRes;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,9 +32,10 @@ public class InvoiceController {
     }
 
     @PostMapping("/house")
-    ApiResponse createInvoices(@RequestBody InvoiceOfHouseReq request) {
-        invoiceService.createInvoices(request);
-        return ApiResponse.builder().build();
+    ApiResponse<CreateInvoicesRes> createInvoices(@RequestBody InvoiceOfHouseReq request) {
+        return ApiResponse.<CreateInvoicesRes>builder()
+                .result(invoiceService.createInvoices(request))
+                .build();
     }
 
     @PutMapping("/{id}/paid")

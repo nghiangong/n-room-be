@@ -31,8 +31,6 @@ public class Invoice {
     LocalDate createDate;
     int amount = 0;
 
-    boolean checkout;
-
     @Setter(AccessLevel.NONE)
     @Enumerated(EnumType.STRING)
     PaymentStatus status = PaymentStatus.UNPAID;

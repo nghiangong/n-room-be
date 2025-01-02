@@ -42,7 +42,7 @@ public class Contract {
     Integer endElecNumber;
     Integer endWaterNumber;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     Tenant repTenant;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -125,18 +125,14 @@ public class Contract {
         if (room.getHouse().isHavingWaterIndex()) {
             if (startWaterNumber == null)
                 throw new AppException(ErrorCode.CONTRACT_NOT_ENTER_START_WATER_RECORD);
-            System.out.println(1);
             if (!room.validateWaterIndex(startDate, startWaterNumber))
                 throw new AppException(ErrorCode.WATER_NUMBER_NOT_VALID);
-            System.out.println(2);
             if (endWaterNumber != null) {
                 if (endWaterNumber < startWaterNumber)
                     throw new AppException(ErrorCode.WATER_NUMBER_NOT_VALID);
-                System.out.println(3);
                 if (!room.validateWaterIndex(endDate, endWaterNumber))
                     throw new AppException(ErrorCode.WATER_NUMBER_NOT_VALID);
             }
-            System.out.println(4);
         } else {
             startWaterNumber = null;
             endWaterNumber = null;
@@ -180,9 +176,7 @@ public class Contract {
         if (daysBetween >= 30) return ContractStatus.ACTIVE;
         if (daysBetween > 0) return ContractStatus.SOON_EXPIRED;
         if (!havingCheckoutInvoice) return ContractStatus.PENDING_CHECKOUT_OR_INVOICE;
-        if (endDate.isBefore(LocalDate.now())) return ContractStatus.EXPIRED;
-
-        return ContractStatus.ACTIVE;
+        return ContractStatus.EXPIRED;
     }
 
 

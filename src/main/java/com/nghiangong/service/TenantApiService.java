@@ -2,13 +2,12 @@ package com.nghiangong.service;
 
 import com.nghiangong.dto.response.contract.ContractDetailRes;
 import com.nghiangong.dto.response.contract.ContractRes;
-import com.nghiangong.dto.response.elecwater.RecordRes;
 import com.nghiangong.dto.response.invoice.InvoiceDetailRes;
 import com.nghiangong.dto.response.invoice.InvoiceRes;
 import com.nghiangong.dto.response.room.RoomDetailRes2;
 import com.nghiangong.dto.response.user.UserRes;
+import com.nghiangong.entity.room.Contract;
 import com.nghiangong.entity.room.Room;
-import com.nghiangong.entity.user.Manager;
 import com.nghiangong.entity.user.Tenant;
 import com.nghiangong.exception.AppException;
 import com.nghiangong.exception.ErrorCode;
@@ -18,8 +17,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,11 +41,9 @@ public class TenantApiService {
 
     @Transactional
     public RoomDetailRes2 getRoom() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        int tenantId = Integer.parseInt(authentication.getName());
-        Tenant tenant = tenantRepository.findById(tenantId).orElseThrow();
+        Tenant tenant = getTenant();
 
-        Room rentingRoom = tenant.getRentingRoom();
+        Room rentingRoom = findRentingRoom(tenant);
         if (rentingRoom == null)
             throw new AppException(ErrorCode.TENANT_RENTING_NO_ROOM);
 
@@ -59,12 +54,9 @@ public class TenantApiService {
     }
 
     @Transactional
-    public List<ContractRes> getContracts() {
-        var authentication = SecurityContextHolder.getContext().getAuthentication();
-        String tenantId = authentication.getName();
-        return contractRepository.findByTenantId(Integer.parseInt(tenantId)).stream()
-                .map(contractMapper::toContractRes)
-                .toList();
+    public ContractDetailRes getContract() {
+        var tenant = getTenant();
+        return contractMapper.toContractDetailRes(tenant.getContract());
     }
 
     @Transactional
@@ -93,13 +85,32 @@ public class TenantApiService {
     @Transactional
     public List<UserRes> getMembers() {
         var tenant = getTenant();
-
-        return tenant.getMembers().stream().map(tenantMapper::toUserRes).toList();
+        return findMembers(tenant).stream().map(tenantMapper::toUserRes).toList();
     }
 
     Tenant getTenant() {
         var authentication = SecurityContextHolder.getContext().getAuthentication();
         int tenantId = Integer.parseInt(authentication.getName());
-        return tenantRepository.findById(tenantId).orElseThrow();
+        var tenant = tenantRepository.findById(tenantId)
+                .orElseThrow(() -> new AppException(ErrorCode.TENANT_NOT_EXIST));
+        tenant.setContract(findContract(tenant));
+        return tenant;
+    }
+
+    Contract findContract(Tenant tenant) {
+        Contract contract = contractRepository.findByRepTenantId(tenant.getRepTenant().getId());
+        return contractRepository.findByRepTenantId(tenant.getRepTenant().getId());
+    }
+
+    List<Tenant> findMembers(Tenant tenant) {
+        var members = tenantRepository.findByRepTenantId(tenant.getRepTenant().getId());
+        return members;
+    }
+
+    Room findRentingRoom(Tenant tenant) {
+        Contract contract = tenant.getContract();
+        if (contract.getRoom().getCurrentContract() == contract)
+            return contract.getRoom();
+        else return null;
     }
 }

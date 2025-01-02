@@ -34,10 +34,10 @@ public class TenantApiController {
                 .build();
     }
 
-    @GetMapping("/contracts")
-    ApiResponse<List<ContractRes>> getContracts() {
-        return ApiResponse.<List<ContractRes>>builder()
-                .result(tenantApiService.getContracts())
+    @GetMapping("/contract")
+    ApiResponse<ContractDetailRes> getContracts() {
+        return ApiResponse.<ContractDetailRes>builder()
+                .result(tenantApiService.getContract())
                 .build();
     }
 

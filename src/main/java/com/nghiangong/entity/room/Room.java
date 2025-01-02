@@ -118,10 +118,8 @@ public class Room {
 
     public void addElecRecord(LocalDate date, int value) {
         date = DateUtils.endOfMonth(date);
-        System.out.println(1);
         if (!validateElecIndex(date, value))
             throw new AppException(ErrorCode.ELEC_NUMBER_NOT_VALID);
-        System.out.println(2);
         var record = getElecRecord(date);
         if (record == null)
             elecRecords.add(ElecRecordOfRoom.builder()
@@ -130,7 +128,6 @@ public class Room {
                     .value(value)
                     .build());
         else record.setValue(value);
-        System.out.println(3);
     }
 
     public void addWaterRecord(LocalDate date, int value) {
@@ -167,12 +164,6 @@ public class Room {
             if (record.getDate().isBefore(date) && record.getValue() > value) return false;
         }
         return true;
-    }
-
-
-    public void addWaterRecord(RecordReq request) {
-        var record = getWaterRecord(request.getDate());
-        record.setValue(request.getValue());
     }
 
     @PostLoad

@@ -19,9 +19,6 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 public class TenantListener {
-    TenantRepository tenantRepository;
-    ContractRepository contractRepository;
-
     @PrePersist
     public void prePersist(Tenant tenant) {
         tenant.setPassword(PasswordEncoderC.encode("1"));
@@ -49,26 +46,5 @@ public class TenantListener {
             BrevoEmailService brevoEmailService = SpringContextHolder.getBean(BrevoEmailService.class);
             brevoEmailService.sendAccount(tenant);
         }
-    }
-
-    @PostLoad
-    public void initializeTransients(Tenant tenant) {
-        contractRepository = SpringContextHolder.getBean(ContractRepository.class);
-        tenantRepository = SpringContextHolder.getBean(TenantRepository.class);
-
-        tenant.setContract(findContract(tenant));
-        tenant.setMembers(findMembers(tenant));
-        Contract contract = tenant.getContract();
-        Room room = contract.getRoom();
-        if (room.getCurrentContract() == contract)
-            tenant.setRentingRoom(room);
-    }
-
-    List<Tenant> findMembers(Tenant tenant) {
-        return tenantRepository.findByRepTenantId(tenant.getRepTenant().getId());
-    }
-
-    Contract findContract(Tenant tenant) {
-        return contractRepository.findByRepTenant_Id(tenant.getRepTenant().getId());
     }
 }
